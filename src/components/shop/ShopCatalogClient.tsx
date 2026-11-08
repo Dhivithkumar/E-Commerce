@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { SlidersHorizontal, X, ArrowUpDown, Sparkles } from "lucide-react";
+import { SlidersHorizontal, X, ArrowUpDown, Sparkles, Filter } from "lucide-react";
 import ProductCard from "@/components/product/ProductCard";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Button } from "@/components/ui/Button";
 
 interface ProductWithRelations {
   id: string;
@@ -127,31 +129,33 @@ export default function ShopCatalogClient({
           <span className="text-xs uppercase tracking-ultra text-elora-taupe font-medium">
             Verified Archives
           </span>
-          <h1 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal mt-1">
+          <h1 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal mt-1 font-normal">
             Haute Skincare Atelier
           </h1>
-          <p className="text-xs text-elora-gray mt-1">
-            Displaying {filteredProducts.length} of {products.length} formulations
+          <p className="text-xs text-elora-gray mt-1 font-sans font-light">
+            Displaying {filteredProducts.length} of {products.length} clinical formulations
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           {/* Mobile Filter Toggle */}
-          <button
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() => setMobileFiltersOpen(true)}
-            className="lg:hidden px-4 py-2 bg-elora-surface border border-elora-border text-xs uppercase tracking-wider text-elora-charcoal flex items-center gap-2 rounded-sm"
+            className="lg:hidden"
           >
-            <SlidersHorizontal className="w-3.5 h-3.5 text-elora-taupe" />
+            <SlidersHorizontal className="w-3.5 h-3.5 mr-2 text-elora-taupe" />
             <span>Filters ({activeFiltersCount})</span>
-          </button>
+          </Button>
 
           {/* Sort Dropdown */}
-          <div className="flex items-center gap-2 bg-elora-surface border border-elora-border px-3 py-2 rounded-sm text-xs text-elora-charcoal">
+          <div className="flex items-center gap-2 bg-elora-surface border border-elora-border px-3.5 py-2.5 rounded-sm text-xs text-elora-charcoal shadow-sm">
             <ArrowUpDown className="w-3.5 h-3.5 text-elora-gray" />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-transparent focus:outline-none text-xs text-elora-charcoal cursor-pointer"
+              className="bg-transparent focus:outline-none text-xs text-elora-charcoal cursor-pointer font-sans"
             >
               <option value="featured">Featured Curations</option>
               <option value="newest">New Arrivals</option>
@@ -163,24 +167,57 @@ export default function ShopCatalogClient({
         </div>
       </div>
 
+      {/* Active Filter Chips Bar */}
+      {activeFiltersCount > 0 && (
+        <div className="py-4 border-b border-elora-border flex flex-wrap items-center gap-2">
+          <span className="text-[10px] uppercase tracking-ultra text-elora-gray mr-1">
+            Active Filters:
+          </span>
+          {selectedCategory !== "all" && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-elora-cream text-elora-charcoal text-xs rounded-full border border-elora-border">
+              <span>Collection: {categories.find((c) => c.slug === selectedCategory)?.name}</span>
+              <button onClick={() => setSelectedCategory("all")} className="hover:text-elora-taupe">
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          {selectedSkinType !== "all" && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-elora-cream text-elora-charcoal text-xs rounded-full border border-elora-border">
+              <span>Skin: {skinTypes.find((s) => s.value === selectedSkinType)?.label}</span>
+              <button onClick={() => setSelectedSkinType("all")} className="hover:text-elora-taupe">
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          {selectedConcern !== "all" && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-elora-cream text-elora-charcoal text-xs rounded-full border border-elora-border">
+              <span>Concern: {skinConcerns.find((c) => c.value === selectedConcern)?.label}</span>
+              <button onClick={() => setSelectedConcern("all")} className="hover:text-elora-taupe">
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          {priceRange !== "all" && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-elora-cream text-elora-charcoal text-xs rounded-full border border-elora-border">
+              <span>Price: {priceRanges.find((p) => p.value === priceRange)?.label}</span>
+              <button onClick={() => setPriceRange("all")} className="hover:text-elora-taupe">
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          <button
+            onClick={resetFilters}
+            className="text-xs text-elora-taupe hover:underline uppercase tracking-wider ml-2 font-medium"
+          >
+            Clear All
+          </button>
+        </div>
+      )}
+
       {/* Main Content Layout: Sidebar Filters + Products Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 pt-8">
         {/* Desktop Sidebar Filters */}
-        <aside className="hidden lg:block space-y-8 pr-6 border-r border-elora-border/60">
-          {activeFiltersCount > 0 && (
-            <div className="p-3 bg-elora-cream/40 border border-elora-border rounded-sm flex items-center justify-between">
-              <span className="text-xs text-elora-charcoal font-medium">
-                {activeFiltersCount} Active Filters
-              </span>
-              <button
-                onClick={resetFilters}
-                className="text-xs text-elora-taupe hover:underline uppercase tracking-wider"
-              >
-                Clear All
-              </button>
-            </div>
-          )}
-
+        <aside className="hidden lg:block space-y-8 pr-6 border-r border-elora-border">
           {/* Category Filter */}
           <div>
             <h4 className="text-[11px] uppercase tracking-ultra text-elora-charcoal font-semibold mb-3">
@@ -189,9 +226,9 @@ export default function ShopCatalogClient({
             <div className="space-y-1 text-xs">
               <button
                 onClick={() => setSelectedCategory("all")}
-                className={`w-full text-left py-1.5 px-2 rounded-sm transition-colors ${
+                className={`w-full text-left py-1.5 px-2.5 rounded-sm transition-colors ${
                   selectedCategory === "all"
-                    ? "bg-elora-charcoal text-elora-ivory font-medium"
+                    ? "bg-elora-forest text-elora-sand font-medium"
                     : "text-elora-gray hover:text-elora-charcoal hover:bg-elora-cream/40"
                 }`}
               >
@@ -201,9 +238,9 @@ export default function ShopCatalogClient({
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.slug)}
-                  className={`w-full text-left py-1.5 px-2 rounded-sm transition-colors ${
+                  className={`w-full text-left py-1.5 px-2.5 rounded-sm transition-colors ${
                     selectedCategory === cat.slug
-                      ? "bg-elora-charcoal text-elora-ivory font-medium"
+                      ? "bg-elora-forest text-elora-sand font-medium"
                       : "text-elora-gray hover:text-elora-charcoal hover:bg-elora-cream/40"
                   }`}
                 >
@@ -223,7 +260,7 @@ export default function ShopCatalogClient({
                 <button
                   key={st.value}
                   onClick={() => setSelectedSkinType(st.value)}
-                  className={`w-full text-left py-1.5 px-2 rounded-sm transition-colors ${
+                  className={`w-full text-left py-1.5 px-2.5 rounded-sm transition-colors ${
                     selectedSkinType === st.value
                       ? "bg-elora-taupe text-white font-medium"
                       : "text-elora-gray hover:text-elora-charcoal hover:bg-elora-cream/40"
@@ -245,7 +282,7 @@ export default function ShopCatalogClient({
                 <button
                   key={sc.value}
                   onClick={() => setSelectedConcern(sc.value)}
-                  className={`w-full text-left py-1.5 px-2 rounded-sm transition-colors ${
+                  className={`w-full text-left py-1.5 px-2.5 rounded-sm transition-colors ${
                     selectedConcern === sc.value
                       ? "bg-elora-taupe text-white font-medium"
                       : "text-elora-gray hover:text-elora-charcoal hover:bg-elora-cream/40"
@@ -267,7 +304,7 @@ export default function ShopCatalogClient({
                 <button
                   key={pr.value}
                   onClick={() => setPriceRange(pr.value)}
-                  className={`w-full text-left py-1.5 px-2 rounded-sm transition-colors ${
+                  className={`w-full text-left py-1.5 px-2.5 rounded-sm transition-colors ${
                     priceRange === pr.value
                       ? "bg-elora-taupe text-white font-medium"
                       : "text-elora-gray hover:text-elora-charcoal hover:bg-elora-cream/40"
@@ -283,21 +320,13 @@ export default function ShopCatalogClient({
         {/* Product Grid Area */}
         <div className="lg:col-span-3">
           {filteredProducts.length === 0 ? (
-            <div className="py-20 text-center bg-elora-surface border border-elora-border rounded-sm p-8">
-              <Sparkles className="w-8 h-8 text-elora-taupe mx-auto mb-3" />
-              <h3 className="font-editorial text-2xl text-elora-charcoal">
-                No formulations matched your current filters
-              </h3>
-              <p className="text-xs text-elora-gray mt-2 max-w-sm mx-auto leading-relaxed">
-                Try loosening your filter parameters or exploring our personalized AI Skin Discovery diagnostic.
-              </p>
-              <button
-                onClick={resetFilters}
-                className="mt-6 px-6 py-2.5 bg-elora-charcoal text-elora-ivory text-xs uppercase tracking-luxury hover:bg-elora-taupe transition-colors rounded-sm"
-              >
-                Reset All Filters
-              </button>
-            </div>
+            <EmptyState
+              icon={Sparkles}
+              title="No formulations matched your current filters"
+              description="Try loosening your filter parameters or exploring our personalized AI Skin Discovery consultation."
+              actionText="Reset All Filters"
+              onAction={resetFilters}
+            />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProducts.map((product) => (
@@ -321,6 +350,7 @@ export default function ShopCatalogClient({
               <button
                 onClick={() => setMobileFiltersOpen(false)}
                 className="p-1 text-elora-charcoal"
+                aria-label="Close filters"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -336,7 +366,7 @@ export default function ShopCatalogClient({
                   onClick={() => setSelectedCategory("all")}
                   className={`w-full text-left py-2 px-2.5 rounded-sm ${
                     selectedCategory === "all"
-                      ? "bg-elora-charcoal text-white"
+                      ? "bg-elora-forest text-elora-sand font-medium"
                       : "text-elora-charcoal hover:bg-elora-cream"
                   }`}
                 >
@@ -348,7 +378,7 @@ export default function ShopCatalogClient({
                     onClick={() => setSelectedCategory(cat.slug)}
                     className={`w-full text-left py-2 px-2.5 rounded-sm ${
                       selectedCategory === cat.slug
-                        ? "bg-elora-charcoal text-white"
+                        ? "bg-elora-forest text-elora-sand font-medium"
                         : "text-elora-charcoal hover:bg-elora-cream"
                     }`}
                   >
@@ -360,18 +390,22 @@ export default function ShopCatalogClient({
 
             {/* Actions */}
             <div className="pt-6 border-t border-elora-border space-y-2">
-              <button
+              <Button
+                variant="forest"
+                size="md"
                 onClick={() => setMobileFiltersOpen(false)}
-                className="w-full py-3 bg-elora-charcoal text-elora-ivory text-xs uppercase tracking-luxury rounded-sm"
+                className="w-full"
               >
-                Apply Filters ({filteredProducts.length})
-              </button>
-              <button
+                <span>Apply Filters ({filteredProducts.length})</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="md"
                 onClick={resetFilters}
-                className="w-full py-2.5 bg-transparent border border-elora-border text-elora-charcoal text-xs uppercase tracking-luxury rounded-sm"
+                className="w-full"
               >
-                Reset
-              </button>
+                <span>Reset All</span>
+              </Button>
             </div>
           </div>
         </div>
@@ -379,4 +413,3 @@ export default function ShopCatalogClient({
     </div>
   );
 }
-

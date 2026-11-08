@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ShieldCheck,
   CreditCard,
@@ -13,10 +14,13 @@ import {
   ChevronRight,
   CheckCircle2,
   Sparkles,
+  Check,
 } from "lucide-react";
 import { useCart } from "@/components/providers/CartProvider";
 import { useCurrency } from "@/components/providers/CurrencyProvider";
 import { SUPPORTED_CURRENCIES, CurrencyCode } from "@/lib/currency";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -114,14 +118,18 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-[70vh] bg-elora-ivory flex flex-col items-center justify-center p-6 text-center">
-        <h2 className="font-editorial text-3xl text-elora-charcoal mb-2">Your bag is empty</h2>
-        <p className="text-xs text-elora-gray mb-6">Select formulations prior to proceeding to checkout.</p>
-        <Link
-          href="/shop"
-          className="px-6 py-3 bg-elora-charcoal text-elora-ivory text-xs uppercase tracking-luxury hover:bg-elora-taupe transition-colors"
-        >
-          Discover Atelier
+      <div className="min-h-[75vh] bg-elora-ivory flex flex-col items-center justify-center p-6 text-center">
+        <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal mb-2 font-normal">
+          Your bag is empty
+        </h2>
+        <p className="text-xs text-elora-gray mb-6 font-light">
+          Select formulations prior to proceeding to checkout.
+        </p>
+        <Link href="/shop">
+          <Button variant="forest" size="md">
+            <span>Discover Atelier</span>
+            <ArrowRight className="w-3.5 h-3.5 ml-2" />
+          </Button>
         </Link>
       </div>
     );
@@ -133,36 +141,77 @@ export default function CheckoutPage() {
         {/* Header Breadcrumbs */}
         <div className="flex items-center justify-between pb-8 border-b border-elora-border">
           <div>
-            <span className="font-editorial text-2xl tracking-[0.2em] uppercase text-elora-charcoal">
-              ÉLORA
-            </span>
-            <span className="text-[10px] tracking-ultra uppercase text-elora-gray ml-3 hidden sm:inline">
+            <Link href="/" className="inline-block group">
+              <span className="font-editorial text-2xl tracking-[0.22em] uppercase text-elora-charcoal group-hover:text-elora-taupe transition-colors">
+                ÉLORA
+              </span>
+            </Link>
+            <span className="text-[9.5px] tracking-ultra uppercase text-elora-gray ml-3 hidden sm:inline font-sans">
               Encrypted Checkout Atelier
             </span>
           </div>
           <div className="flex items-center gap-2 text-xs text-elora-forest font-medium">
-            <Lock className="w-3.5 h-3.5" />
-            <span>256-Bit SSL Encryption</span>
+            <Lock className="w-3.5 h-3.5 text-elora-taupe" />
+            <span>256-Bit SSL Transport Security</span>
           </div>
         </div>
 
         {/* Checkout Steps Progress */}
-        <div className="flex items-center justify-center gap-3 sm:gap-8 py-6 text-xs uppercase tracking-luxury font-medium border-b border-elora-border/60">
-          <span className={step >= 1 ? "text-elora-charcoal font-semibold" : "text-elora-gray"}>
-            1. Contact
-          </span>
+        <div className="flex items-center justify-center gap-2 sm:gap-8 py-6 text-xs uppercase tracking-luxury font-medium border-b border-elora-border font-sans">
+          <button
+            onClick={() => setStep(1)}
+            className={`flex items-center gap-1.5 transition-colors ${
+              step >= 1 ? "text-elora-charcoal font-semibold" : "text-elora-gray"
+            }`}
+          >
+            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
+              step > 1 ? "bg-elora-forest text-elora-sand" : "bg-elora-charcoal text-white"
+            }`}>
+              {step > 1 ? <Check className="w-3 h-3" /> : "1"}
+            </span>
+            <span>Contact</span>
+          </button>
           <ChevronRight className="w-3 h-3 text-elora-border" />
-          <span className={step >= 2 ? "text-elora-charcoal font-semibold" : "text-elora-gray"}>
-            2. Destination
-          </span>
+          <button
+            onClick={() => { if (email && firstName && lastName) setStep(2); }}
+            className={`flex items-center gap-1.5 transition-colors ${
+              step >= 2 ? "text-elora-charcoal font-semibold" : "text-elora-gray"
+            }`}
+          >
+            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
+              step > 2 ? "bg-elora-forest text-elora-sand" : step === 2 ? "bg-elora-charcoal text-white" : "bg-elora-border text-elora-gray"
+            }`}>
+              {step > 2 ? <Check className="w-3 h-3" /> : "2"}
+            </span>
+            <span>Destination</span>
+          </button>
           <ChevronRight className="w-3 h-3 text-elora-border" />
-          <span className={step >= 3 ? "text-elora-charcoal font-semibold" : "text-elora-gray"}>
-            3. Courier
-          </span>
+          <button
+            onClick={() => { if (street && city && postalCode) setStep(3); }}
+            className={`flex items-center gap-1.5 transition-colors ${
+              step >= 3 ? "text-elora-charcoal font-semibold" : "text-elora-gray"
+            }`}
+          >
+            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
+              step > 3 ? "bg-elora-forest text-elora-sand" : step === 3 ? "bg-elora-charcoal text-white" : "bg-elora-border text-elora-gray"
+            }`}>
+              {step > 3 ? <Check className="w-3 h-3" /> : "3"}
+            </span>
+            <span>Courier</span>
+          </button>
           <ChevronRight className="w-3 h-3 text-elora-border" />
-          <span className={step >= 4 ? "text-elora-charcoal font-semibold" : "text-elora-gray"}>
-            4. Payment
-          </span>
+          <div
+            className={`flex items-center gap-1.5 ${
+              step >= 4 ? "text-elora-charcoal font-semibold" : "text-elora-gray"
+            }`}
+          >
+            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
+              step === 4 ? "bg-elora-charcoal text-white" : "bg-elora-border text-elora-gray"
+            }`}>
+              4
+            </span>
+            <span>Payment</span>
+          </div>
         </div>
 
         {/* Main Grid: Form Steps + Order Summary */}
@@ -177,16 +226,16 @@ export default function CheckoutPage() {
 
             <form onSubmit={handlePlaceOrder} className="space-y-8">
               {/* Step 1: Customer Identification */}
-              <div className="bg-elora-surface border border-elora-border p-6 rounded-sm space-y-4">
-                <div className="flex justify-between items-center border-b border-elora-border/60 pb-3">
-                  <h3 className="font-editorial text-xl text-elora-charcoal">
+              <div className="bg-elora-surface border border-elora-border p-6 sm:p-8 rounded-sm space-y-4 shadow-sm">
+                <div className="flex justify-between items-center border-b border-elora-border pb-3">
+                  <h3 className="font-editorial text-2xl text-elora-charcoal font-normal">
                     1. Customer Information
                   </h3>
                   {step > 1 && (
                     <button
                       type="button"
                       onClick={() => setStep(1)}
-                      className="text-xs text-elora-taupe underline uppercase tracking-wider"
+                      className="text-xs text-elora-taupe underline uppercase tracking-wider font-medium"
                     >
                       Edit
                     </button>
@@ -250,30 +299,33 @@ export default function CheckoutPage() {
                 </div>
 
                 {step === 1 && (
-                  <button
+                  <Button
                     type="button"
+                    variant="forest"
+                    size="md"
                     onClick={() => {
                       if (email && firstName && lastName) setStep(2);
-                      else setErrorMessage("Please fill your email and name.");
+                      else setErrorMessage("Please complete your email and name before proceeding.");
                     }}
-                    className="mt-3 px-6 py-2.5 bg-elora-charcoal text-elora-ivory text-xs uppercase tracking-luxury rounded-sm hover:bg-elora-taupe transition-colors"
+                    className="mt-3"
                   >
-                    Continue to Shipping Destination
-                  </button>
+                    <span>Continue to Shipping Destination</span>
+                    <ArrowRight className="w-3.5 h-3.5 ml-2" />
+                  </Button>
                 )}
               </div>
 
               {/* Step 2: Shipping Destination */}
-              <div className="bg-elora-surface border border-elora-border p-6 rounded-sm space-y-4">
-                <div className="flex justify-between items-center border-b border-elora-border/60 pb-3">
-                  <h3 className="font-editorial text-xl text-elora-charcoal">
+              <div className="bg-elora-surface border border-elora-border p-6 sm:p-8 rounded-sm space-y-4 shadow-sm">
+                <div className="flex justify-between items-center border-b border-elora-border pb-3">
+                  <h3 className="font-editorial text-2xl text-elora-charcoal font-normal">
                     2. Shipping Address
                   </h3>
                   {step > 2 && (
                     <button
                       type="button"
                       onClick={() => setStep(2)}
-                      className="text-xs text-elora-taupe underline uppercase tracking-wider"
+                      className="text-xs text-elora-taupe underline uppercase tracking-wider font-medium"
                     >
                       Edit
                     </button>
@@ -367,30 +419,33 @@ export default function CheckoutPage() {
                 </div>
 
                 {step === 2 && (
-                  <button
+                  <Button
                     type="button"
+                    variant="forest"
+                    size="md"
                     onClick={() => {
                       if (street && city && postalCode) setStep(3);
                       else setErrorMessage("Please complete street, city, and postal code.");
                     }}
-                    className="mt-3 px-6 py-2.5 bg-elora-charcoal text-elora-ivory text-xs uppercase tracking-luxury rounded-sm hover:bg-elora-taupe transition-colors"
+                    className="mt-3"
                   >
-                    Continue to Courier Selection
-                  </button>
+                    <span>Continue to Courier Selection</span>
+                    <ArrowRight className="w-3.5 h-3.5 ml-2" />
+                  </Button>
                 )}
               </div>
 
               {/* Step 3: Courier Selection */}
-              <div className="bg-elora-surface border border-elora-border p-6 rounded-sm space-y-4">
-                <div className="flex justify-between items-center border-b border-elora-border/60 pb-3">
-                  <h3 className="font-editorial text-xl text-elora-charcoal">
+              <div className="bg-elora-surface border border-elora-border p-6 sm:p-8 rounded-sm space-y-4 shadow-sm">
+                <div className="flex justify-between items-center border-b border-elora-border pb-3">
+                  <h3 className="font-editorial text-2xl text-elora-charcoal font-normal">
                     3. Courier Method
                   </h3>
                   {step > 3 && (
                     <button
                       type="button"
                       onClick={() => setStep(3)}
-                      className="text-xs text-elora-taupe underline uppercase tracking-wider"
+                      className="text-xs text-elora-taupe underline uppercase tracking-wider font-medium"
                     >
                       Edit
                     </button>
@@ -402,17 +457,17 @@ export default function CheckoutPage() {
                     onClick={() => setShippingMethod("COMPLIMENTARY_EXPRESS")}
                     className={`p-4 border rounded-sm flex items-center justify-between cursor-pointer transition-all ${
                       shippingMethod === "COMPLIMENTARY_EXPRESS"
-                        ? "border-elora-charcoal bg-elora-cream/30"
-                        : "border-elora-border/60 bg-elora-surface"
+                        ? "border-elora-forest bg-elora-cream/30 ring-1 ring-elora-forest"
+                        : "border-elora-border bg-elora-surface hover:border-elora-taupe/40"
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <Truck className="w-5 h-5 text-elora-taupe" />
+                      <Truck className="w-5 h-5 text-elora-taupe flex-shrink-0" />
                       <div>
                         <p className="text-xs font-medium text-elora-charcoal">
                           Complimentary International Courier (2-4 Business Days)
                         </p>
-                        <p className="text-[11px] text-elora-gray">
+                        <p className="text-[11px] text-elora-gray font-light">
                           Climate-neutral transit in temperature-regulated insulated presentation box
                         </p>
                       </div>
@@ -424,17 +479,17 @@ export default function CheckoutPage() {
                     onClick={() => setShippingMethod("PREMIUM_WHITE_GLOVE")}
                     className={`p-4 border rounded-sm flex items-center justify-between cursor-pointer transition-all ${
                       shippingMethod === "PREMIUM_WHITE_GLOVE"
-                        ? "border-elora-charcoal bg-elora-cream/30"
-                        : "border-elora-border/60 bg-elora-surface"
+                        ? "border-elora-forest bg-elora-cream/30 ring-1 ring-elora-forest"
+                        : "border-elora-border bg-elora-surface hover:border-elora-taupe/40"
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <Sparkles className="w-5 h-5 text-elora-sand" />
+                      <Sparkles className="w-5 h-5 text-elora-sand flex-shrink-0" />
                       <div>
                         <p className="text-xs font-medium text-elora-charcoal">
                           Signature Concierge Priority (1-2 Business Days)
                         </p>
-                        <p className="text-[11px] text-elora-gray">
+                        <p className="text-[11px] text-elora-gray font-light">
                           Priority morning dispatch with personal hand delivery confirmation
                         </p>
                       </div>
@@ -444,28 +499,29 @@ export default function CheckoutPage() {
                 </div>
 
                 {step === 3 && (
-                  <button
+                  <Button
                     type="button"
+                    variant="forest"
+                    size="md"
                     onClick={() => setStep(4)}
-                    className="mt-3 px-6 py-2.5 bg-elora-charcoal text-elora-ivory text-xs uppercase tracking-luxury rounded-sm hover:bg-elora-taupe transition-colors"
+                    className="mt-3"
                   >
-                    Continue to Payment
-                  </button>
+                    <span>Continue to Payment</span>
+                    <ArrowRight className="w-3.5 h-3.5 ml-2" />
+                  </Button>
                 )}
               </div>
 
               {/* Step 4: Secure Payment */}
-              <div className="bg-elora-surface border border-elora-border p-6 rounded-sm space-y-4">
-                <div className="border-b border-elora-border/60 pb-3">
-                  <h3 className="font-editorial text-xl text-elora-charcoal">
+              <div className="bg-elora-surface border border-elora-border p-6 sm:p-8 rounded-sm space-y-4 shadow-sm">
+                <div className="border-b border-elora-border pb-3">
+                  <h3 className="font-editorial text-2xl text-elora-charcoal font-normal">
                     4. Payment Authorization
                   </h3>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[10px] uppercase px-2 py-0.5 bg-elora-sand/20 text-elora-forest font-semibold rounded-sm">
-                      Stripe Test Mode
-                    </span>
-                    <span className="text-[11px] text-elora-gray">
-                      Safe Sandbox: Mock or test cards supported
+                    <Badge variant="clinical">Stripe Test Mode</Badge>
+                    <span className="text-[11px] text-elora-gray font-light">
+                      Safe Sandbox: Mock and test cards supported
                     </span>
                   </div>
                 </div>
@@ -513,105 +569,99 @@ export default function CheckoutPage() {
 
                 {/* Final Submit Order Button */}
                 <div className="pt-4">
-                  <button
+                  <Button
                     type="submit"
-                    disabled={loading}
-                    className="w-full py-4 bg-elora-forest text-elora-sand hover:bg-elora-taupe hover:text-white transition-all duration-300 text-xs uppercase tracking-luxury font-medium rounded-sm flex items-center justify-center gap-2 group shadow-lg disabled:opacity-50"
+                    variant="forest"
+                    size="lg"
+                    isLoading={loading}
+                    className="w-full shadow-luxury"
                   >
-                    {loading ? (
-                      <span>Authorizing Allocation...</span>
-                    ) : (
-                      <>
-                        <Lock className="w-4 h-4" />
-                        <span>Place Order — {formatPrice(estimatedTotalUSD)}</span>
-                      </>
-                    )}
-                  </button>
-                  <p className="text-[10px] text-center text-elora-gray mt-2.5">
-                    By placing your order, you agree to our 30-Day Ritual Guarantee and Terms of Service.
-                  </p>
+                    <span>Authorize Payment & Place Order</span>
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
                 </div>
               </div>
             </form>
           </div>
 
-          {/* Right: Order Summary */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="bg-elora-surface border border-elora-border p-6 rounded-sm shadow-card space-y-4">
-              <h3 className="font-editorial text-xl text-elora-charcoal pb-3 border-b border-elora-border/60">
-                Order Summary ({items.length})
-              </h3>
+          {/* Right: Floating Order Summary Sidebar */}
+          <div className="lg:col-span-5">
+            <div className="bg-elora-surface border border-elora-border p-6 sm:p-8 rounded-sm sticky top-28 space-y-6 shadow-luxury">
+              <div className="border-b border-elora-border pb-4">
+                <span className="text-[10px] uppercase tracking-ultra text-elora-taupe font-medium">
+                  Summary
+                </span>
+                <h3 className="font-editorial text-2xl text-elora-charcoal font-normal mt-0.5">
+                  Order Selections ({items.length})
+                </h3>
+              </div>
 
-              {/* Items List */}
-              <div className="divide-y divide-elora-border/60 max-h-72 overflow-y-auto pr-1">
+              {/* Items List Preview */}
+              <div className="divide-y divide-elora-border max-h-72 overflow-y-auto">
                 {items.map((item) => (
-                  <div key={item.id} className="py-3 flex gap-3">
-                    <div className="relative w-14 h-16 bg-elora-cream rounded-sm overflow-hidden flex-shrink-0 border border-elora-border/50">
-                      <Image src={item.image} alt={item.name} fill className="object-cover" />
+                  <div key={item.id} className="py-3 flex gap-3 items-center">
+                    <div className="relative w-12 h-14 bg-elora-cream rounded-sm overflow-hidden flex-shrink-0 border border-elora-border">
+                      <Image
+                        src={item.image}
+                        alt={item.name}
+                        fill
+                        className="object-cover"
+                      />
                     </div>
-                    <div className="flex-1">
-                      <h4 className="text-xs font-medium text-elora-charcoal line-clamp-1">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-xs font-medium text-elora-charcoal truncate">
                         {item.name}
                       </h4>
-                      <p className="text-[11px] text-elora-gray">{item.variantTitle}</p>
-                      <p className="text-[11px] text-elora-charcoal mt-1">
-                        Qty: {item.quantity} × {formatPrice(item.price)}
+                      <p className="text-[11px] text-elora-gray">
+                        Qty: {item.quantity} • {item.variantTitle}
                       </p>
                     </div>
-                    <div className="text-right text-xs font-semibold text-elora-charcoal">
+                    <span className="text-xs font-medium text-elora-charcoal">
                       {formatPrice(item.price * item.quantity)}
-                    </div>
+                    </span>
                   </div>
                 ))}
               </div>
 
-              {/* Privilege Applied */}
-              {coupon && (
-                <div className="p-3 bg-elora-cream/40 border border-elora-taupe/30 rounded-sm flex justify-between items-center text-xs text-elora-charcoal">
-                  <span>Privilege: {coupon.code}</span>
-                  <span className="font-semibold text-emerald-800">-{formatPrice(discountAmount)}</span>
-                </div>
-              )}
-
-              {/* Calculation Rows */}
-              <div className="space-y-2 text-xs pt-3 border-t border-elora-border/60 text-elora-gray">
-                <div className="flex justify-between">
+              {/* Price Breakdown */}
+              <div className="space-y-2 text-xs border-t border-elora-border pt-4">
+                <div className="flex justify-between text-elora-gray">
                   <span>Subtotal</span>
                   <span className="text-elora-charcoal font-medium">{formatPrice(subtotal)}</span>
                 </div>
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-emerald-800">
-                    <span>Privilege Savings</span>
+                    <span>Privilege Code ({coupon?.code})</span>
                     <span>-{formatPrice(discountAmount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between">
-                  <span>International Courier</span>
+                <div className="flex justify-between text-elora-gray">
+                  <span>International Express Courier</span>
                   <span className="text-elora-forest font-medium">
                     {shippingFeeUSD === 0 ? "Complimentary" : formatPrice(shippingFeeUSD)}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Estimated Tax ({country})</span>
+                <div className="flex justify-between text-elora-gray">
+                  <span>Estimated Regional Duties & Tax ({Math.round(taxRate * 100)}%)</span>
                   <span className="text-elora-charcoal">{formatPrice(estimatedTaxUSD)}</span>
                 </div>
-                <div className="flex justify-between text-base font-semibold text-elora-charcoal pt-3 border-t border-elora-border">
-                  <span>Final Investment</span>
+                <div className="flex justify-between text-base font-medium text-elora-charcoal pt-3 border-t border-elora-border">
+                  <span className="font-editorial text-lg">Total Due</span>
                   <span className="font-editorial text-2xl text-elora-charcoal">
                     {formatPrice(estimatedTotalUSD)}
                   </span>
                 </div>
               </div>
 
-              {/* Reassurance */}
-              <div className="pt-2 text-[11px] text-elora-gray/80 space-y-1.5">
+              {/* Reassurance Strip */}
+              <div className="pt-2 border-t border-elora-border text-[11px] text-elora-gray space-y-1.5 font-light">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-3.5 h-3.5 text-elora-taupe" />
-                  <span>Complimentary 30-Day Ritual Guarantee</span>
+                  <span>30-Day Ritual Return Guarantee on all orders</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-elora-taupe" />
-                  <span>Insulated Luxury Presentation Packaging</span>
+                  <Truck className="w-3.5 h-3.5 text-elora-taupe" />
+                  <span>Carbon-neutral insured transit across 140+ countries</span>
                 </div>
               </div>
             </div>
@@ -621,4 +671,3 @@ export default function CheckoutPage() {
     </div>
   );
 }
-

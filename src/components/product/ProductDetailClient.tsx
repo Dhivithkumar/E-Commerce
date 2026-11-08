@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Heart,
   Star,
@@ -15,11 +16,17 @@ import {
   Check,
   ChevronRight,
   Sparkles,
+  Layers,
+  Sun,
+  Shield,
+  ZoomIn,
 } from "lucide-react";
 import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/components/providers/WishlistProvider";
 import { useCurrency } from "@/components/providers/CurrencyProvider";
 import ProductCard from "@/components/product/ProductCard";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 
 interface ProductDetailClientProps {
   product: {
@@ -64,6 +71,8 @@ export default function ProductDetailClient({
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<"benefits" | "ingredients" | "howToUse" | "skinTypes">("benefits");
   const [isAdding, setIsAdding] = useState(false);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+  const [isZoomed, setIsZoomed] = useState(false);
 
   // Review form state
   const [reviewAuthor, setReviewAuthor] = useState("");
@@ -72,6 +81,20 @@ export default function ProductDetailClient({
   const [reviewComment, setReviewComment] = useState("");
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
   const [reviewLoading, setReviewLoading] = useState(false);
+
+  const purchaseSectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (purchaseSectionRef.current) {
+        const rect = purchaseSectionRef.current.getBoundingClientRect();
+        // Show sticky bar when user scrolls past the main buy action
+        setShowStickyBar(rect.bottom < 0);
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const images = product.images.length > 0
     ? product.images
@@ -156,15 +179,15 @@ export default function ProductDetailClient({
     <div className="bg-elora-ivory min-h-screen py-10 lg:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb Navigation */}
-        <nav className="flex items-center gap-2 text-xs uppercase tracking-luxury text-elora-gray mb-8">
-          <Link href="/" className="hover:text-elora-charcoal">Home</Link>
-          <ChevronRight className="w-3 h-3" />
-          <Link href="/shop" className="hover:text-elora-charcoal">Atelier</Link>
-          <ChevronRight className="w-3 h-3" />
-          <Link href={`/collections/${product.category.slug}`} className="hover:text-elora-charcoal">
+        <nav className="flex items-center gap-2 text-xs uppercase tracking-luxury text-elora-gray mb-8 font-sans">
+          <Link href="/" className="hover:text-elora-charcoal transition-colors">Home</Link>
+          <ChevronRight className="w-3 h-3 text-elora-border" />
+          <Link href="/shop" className="hover:text-elora-charcoal transition-colors">Atelier</Link>
+          <ChevronRight className="w-3 h-3 text-elora-border" />
+          <Link href={`/collections/${product.category.slug}`} className="hover:text-elora-charcoal transition-colors">
             {product.category.name}
           </Link>
-          <ChevronRight className="w-3 h-3" />
+          <ChevronRight className="w-3 h-3 text-elora-border" />
           <span className="text-elora-charcoal font-medium truncate max-w-xs">{product.name}</span>
         </nav>
 
@@ -172,36 +195,56 @@ export default function ProductDetailClient({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
           {/* Left: Gallery Column */}
           <div className="lg:col-span-7 space-y-4">
-            {/* Main Stage Image */}
-            <div className="relative aspect-[4/5] bg-elora-cream rounded-sm overflow-hidden border border-elora-border shadow-luxury">
+            {/* Main Stage Image with Zoom Toggle */}
+            <div
+              onClick={() => setIsZoomed(!isZoomed)}
+              className="relative aspect-[4/5] bg-elora-cream rounded-sm overflow-hidden border border-elora-border shadow-luxury cursor-zoom-in group"
+            >
               <Image
                 src={images[selectedImageIndex]?.url || images[0]?.url}
                 alt={images[selectedImageIndex]?.alt || product.name}
                 fill
                 priority
-                className="object-cover object-center transition-all duration-500"
+                className={`object-cover object-center transition-all duration-700 ease-out ${
+                  isZoomed ? "scale-125" : "scale-100 group-hover:scale-105"
+                }`}
                 sizes="(max-width: 1024px) 100vw, 55vw"
               />
 
               {product.badge && (
                 <div className="absolute top-4 left-4 z-10">
-                  <span className="px-3 py-1.5 bg-elora-forest/90 text-elora-sand text-xs uppercase tracking-luxury font-medium backdrop-blur-sm rounded-sm">
-                    {product.badge}
-                  </span>
+                  <Badge variant="bestseller">{product.badge}</Badge>
                 </div>
               )}
 
-              <button
-                onClick={() => toggleWishlist(product.id)}
-                aria-label="Wishlist"
-                className={`absolute top-4 right-4 z-10 p-2.5 rounded-full transition-all ${
-                  inWishlist
-                    ? "bg-elora-taupe text-white"
-                    : "bg-white/80 text-elora-charcoal hover:bg-white"
-                }`}
-              >
-                <Heart className={`w-4 h-4 ${inWishlist ? "fill-current" : ""}`} />
-              </button>
+              <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+                <button
+                  type="button"
+                  aria-label="Toggle zoom preview"
+                  className="p-2.5 rounded-full bg-white/80 hover:bg-white text-elora-charcoal shadow-sm transition-colors"
+                >
+                  <ZoomIn className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleWishlist(product.id);
+                  }}
+                  aria-label="Wishlist"
+                  className={`p-2.5 rounded-full transition-all shadow-sm ${
+                    inWishlist
+                      ? "bg-elora-taupe text-white"
+                      : "bg-white/80 text-elora-charcoal hover:bg-white"
+                  }`}
+                >
+                  <Heart className={`w-4 h-4 ${inWishlist ? "fill-current" : ""}`} />
+                </button>
+              </div>
+
+              <div className="absolute bottom-4 left-4 z-10 bg-elora-charcoal/80 text-elora-ivory text-[10px] px-2.5 py-1 rounded-sm uppercase tracking-wider backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                {isZoomed ? "Click to Reset View" : "Click to Magnify"}
+              </div>
             </div>
 
             {/* Thumbnail Navigation */}
@@ -210,11 +253,14 @@ export default function ProductDetailClient({
                 {images.map((img, idx) => (
                   <button
                     key={img.id}
-                    onClick={() => setSelectedImageIndex(idx)}
+                    onClick={() => {
+                      setSelectedImageIndex(idx);
+                      setIsZoomed(false);
+                    }}
                     className={`relative w-20 h-24 flex-shrink-0 bg-elora-cream rounded-sm overflow-hidden border transition-all ${
                       selectedImageIndex === idx
                         ? "border-elora-charcoal ring-1 ring-elora-charcoal"
-                        : "border-elora-border/60 opacity-70 hover:opacity-100"
+                        : "border-elora-border opacity-70 hover:opacity-100"
                     }`}
                   >
                     <Image
@@ -230,7 +276,7 @@ export default function ProductDetailClient({
           </div>
 
           {/* Right: Commerce & Configuration Column */}
-          <div className="lg:col-span-5 space-y-6">
+          <div ref={purchaseSectionRef} className="lg:col-span-5 space-y-6">
             <div>
               <div className="flex items-center justify-between text-xs uppercase tracking-ultra text-elora-taupe font-medium">
                 <span>{product.category.name}</span>
@@ -242,7 +288,7 @@ export default function ProductDetailClient({
               </h1>
 
               {product.subtitle && (
-                <p className="text-sm text-elora-gray mt-1.5 font-sans">
+                <p className="text-sm text-elora-gray mt-1.5 font-sans font-light">
                   {product.subtitle}
                 </p>
               )}
@@ -255,15 +301,15 @@ export default function ProductDetailClient({
                   ))}
                 </div>
                 <span className="font-semibold">{avgRating}</span>
-                <a href="#reviews" className="text-elora-gray underline hover:text-elora-charcoal">
-                  ({totalReviews} Verified Client Reviews)
+                <a href="#reviews" className="text-elora-gray underline hover:text-elora-charcoal transition-colors">
+                  ({totalReviews} Verified Client Reflections)
                 </a>
               </div>
             </div>
 
             {/* Price Row */}
-            <div className="py-4 border-y border-elora-border/60 flex items-baseline gap-3">
-              <span className="font-editorial text-3xl text-elora-charcoal font-medium">
+            <div className="py-4 border-y border-elora-border flex items-baseline gap-3">
+              <span className="font-editorial text-3xl sm:text-4xl text-elora-charcoal font-medium">
                 {formatPrice(currentPrice)}
               </span>
               {currentCompareAt && (
@@ -272,12 +318,12 @@ export default function ProductDetailClient({
                 </span>
               )}
               <span className="text-[11px] text-elora-forest font-sans ml-auto">
-                Taxes & International Duties Calculated at Checkout
+                Taxes & Duties Calculated at Checkout
               </span>
             </div>
 
             {/* Description Paragraph */}
-            <p className="text-xs sm:text-sm text-elora-gray leading-relaxed font-sans">
+            <p className="text-xs sm:text-sm text-elora-gray leading-relaxed font-sans font-light">
               {product.description}
             </p>
 
@@ -294,8 +340,8 @@ export default function ProductDetailClient({
                       onClick={() => setSelectedVariantId(variant.id)}
                       className={`p-3 text-left border rounded-sm transition-all ${
                         selectedVariantId === variant.id
-                          ? "border-elora-charcoal bg-elora-surface shadow-sm"
-                          : "border-elora-border/70 hover:border-elora-border bg-elora-surface/50"
+                          ? "border-elora-charcoal bg-elora-surface shadow-sm ring-1 ring-elora-charcoal"
+                          : "border-elora-border hover:border-elora-taupe/40 bg-elora-surface/60"
                       }`}
                     >
                       <p className="text-xs font-medium text-elora-charcoal">{variant.title}</p>
@@ -308,9 +354,9 @@ export default function ProductDetailClient({
 
             {/* Quantity Selector & Stock Status */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between text-[11px] text-elora-gray uppercase tracking-wider">
+              <div className="flex items-center justify-between text-[11px] text-elora-gray uppercase tracking-wider font-sans">
                 <span>Quantity</span>
-                <span className="text-elora-forest">
+                <span className="text-elora-forest font-medium">
                   {currentVariant && currentVariant.stock > 0
                     ? `In Stock (${currentVariant.stock} available)`
                     : "Temporarily Allocation Reserved"}
@@ -321,6 +367,7 @@ export default function ProductDetailClient({
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     className="px-3.5 py-2.5 text-elora-charcoal hover:bg-elora-cream/40 transition-colors"
+                    aria-label="Decrease quantity"
                   >
                     -
                   </button>
@@ -332,44 +379,49 @@ export default function ProductDetailClient({
                       setQuantity(Math.min(quantity + 1, currentVariant?.stock || 10))
                     }
                     className="px-3.5 py-2.5 text-elora-charcoal hover:bg-elora-cream/40 transition-colors"
+                    aria-label="Increase quantity"
                   >
                     +
                   </button>
                 </div>
 
                 {/* Add to Cart CTA */}
-                <button
+                <Button
+                  variant="forest"
+                  size="lg"
                   onClick={() => handleAddToCart(false)}
                   disabled={isAdding || !currentVariant || currentVariant.stock <= 0}
-                  className="flex-1 py-3.5 px-6 bg-elora-charcoal text-elora-ivory text-xs uppercase tracking-luxury hover:bg-elora-taupe transition-colors duration-300 rounded-sm font-medium flex items-center justify-center gap-2 group shadow-sm disabled:opacity-50"
+                  className="flex-1 shadow-luxury"
                 >
                   {isAdding ? (
                     <>
-                      <Check className="w-4 h-4 text-elora-sand" />
+                      <Check className="w-4 h-4 text-elora-sand mr-2" />
                       <span>Added to Bag</span>
                     </>
                   ) : (
                     <>
-                      <ShoppingBag className="w-4 h-4" />
+                      <ShoppingBag className="w-4 h-4 text-elora-sand mr-2" />
                       <span>Add To Bag — {formatPrice(currentPrice * quantity)}</span>
                     </>
                   )}
-                </button>
+                </Button>
               </div>
             </div>
 
-            {/* Instant Buy Now Button */}
-            <button
+            {/* Instant Express Checkout Button */}
+            <Button
+              variant="primary"
+              size="lg"
               onClick={() => handleAddToCart(true)}
               disabled={isAdding || !currentVariant || currentVariant.stock <= 0}
-              className="w-full py-3 px-6 bg-elora-forest text-elora-sand hover:bg-elora-ivory hover:text-elora-forest border border-elora-forest text-xs uppercase tracking-luxury transition-all duration-300 rounded-sm font-medium flex items-center justify-center gap-2"
+              className="w-full shadow-md"
             >
-              <Sparkles className="w-4 h-4" />
+              <Sparkles className="w-4 h-4 mr-2" />
               <span>Instant Express Checkout</span>
-            </button>
+            </Button>
 
             {/* Luxury Assurance Strip */}
-            <div className="pt-4 border-t border-elora-border/60 grid grid-cols-2 gap-4 text-xs text-elora-gray">
+            <div className="pt-4 border-t border-elora-border grid grid-cols-2 gap-4 text-xs text-elora-gray">
               <div className="flex items-center gap-2.5">
                 <Truck className="w-4 h-4 text-elora-taupe flex-shrink-0" />
                 <span>Complimentary Carbon-Neutral Courier</span>
@@ -393,7 +445,7 @@ export default function ProductDetailClient({
         {/* Detailed Formulation Tabs */}
         <div className="mt-20 border-t border-elora-border pt-12">
           {/* Tab Headers */}
-          <div className="flex gap-8 border-b border-elora-border/60 pb-3 overflow-x-auto scrollbar-none text-xs uppercase tracking-luxury font-medium">
+          <div className="flex gap-8 border-b border-elora-border pb-3 overflow-x-auto scrollbar-none text-xs uppercase tracking-luxury font-medium font-sans">
             <button
               onClick={() => setActiveTab("benefits")}
               className={`pb-3 transition-colors ${
@@ -438,95 +490,125 @@ export default function ProductDetailClient({
 
           {/* Tab Content */}
           <div className="py-8 text-xs sm:text-sm text-elora-gray font-sans leading-relaxed max-w-4xl">
-            {activeTab === "benefits" && (
-              <div className="space-y-4">
-                <h3 className="font-editorial text-2xl text-elora-charcoal">
-                  Stratum Corneum Cellular Support
-                </h3>
-                <p>
-                  {product.details ||
-                    "This advanced formulation is bio-engineered to replenish depleted lipid envelopes without occlusive synthetic silicones. By leveraging cellular signaling peptides and extremolytes, it empowers skin to defend against daily oxidative exposure while preserving optimal barrier elasticity."}
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
-                  <div className="p-4 bg-elora-surface border border-elora-border/60 rounded-sm">
-                    <p className="font-semibold text-elora-charcoal mb-1">Barrier Fortification</p>
-                    <p className="text-xs">Reconstructs depleted intercellular cement in a physiological 3:1:1 lipid ratio.</p>
-                  </div>
-                  <div className="p-4 bg-elora-surface border border-elora-border/60 rounded-sm">
-                    <p className="font-semibold text-elora-charcoal mb-1">Cellular Osmoprotection</p>
-                    <p className="text-xs">Shields native enzymes and proteins against urban pollution and blue-light oxidative stress.</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "ingredients" && (
-              <div className="space-y-6">
-                <h3 className="font-editorial text-2xl text-elora-charcoal">
-                  Transparency Formulation Profile
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {product.productIngredients.map(({ ingredient }) => (
-                    <div
-                      key={ingredient.slug}
-                      className="p-5 bg-elora-surface border border-elora-border/70 rounded-sm space-y-2"
-                    >
-                      <div className="flex justify-between items-start">
-                        <h4 className="font-editorial text-lg text-elora-charcoal font-medium">
-                          {ingredient.name}
-                        </h4>
-                        <span className="text-[10px] uppercase px-2 py-0.5 bg-elora-forest/10 text-elora-forest rounded-sm font-medium">
-                          {ingredient.safetyRating}
-                        </span>
-                      </div>
-                      <p className="text-xs text-elora-taupe font-medium">{ingredient.benefit}</p>
-                      <p className="text-xs text-elora-gray leading-relaxed">{ingredient.description}</p>
+            <AnimatePresence mode="wait">
+              {activeTab === "benefits" && (
+                <motion.div
+                  key="benefits"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-4"
+                >
+                  <h3 className="font-editorial text-2xl text-elora-charcoal font-normal">
+                    Stratum Corneum Cellular Support
+                  </h3>
+                  <p className="font-light">
+                    {product.details ||
+                      "This advanced formulation is bio-engineered to replenish depleted lipid envelopes without occlusive synthetic silicones. By leveraging cellular signaling peptides and extremolytes, it empowers skin to defend against daily oxidative exposure while preserving optimal barrier elasticity."}
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+                    <div className="p-5 bg-elora-surface border border-elora-border rounded-sm shadow-sm">
+                      <p className="font-semibold text-elora-charcoal mb-1">Barrier Fortification</p>
+                      <p className="text-xs font-light">Reconstructs depleted intercellular cement in a physiological 3:1:1 lipid ratio.</p>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
+                    <div className="p-5 bg-elora-surface border border-elora-border rounded-sm shadow-sm">
+                      <p className="font-semibold text-elora-charcoal mb-1">Cellular Osmoprotection</p>
+                      <p className="text-xs font-light">Shields native enzymes and proteins against urban pollution and blue-light oxidative stress.</p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
 
-            {activeTab === "howToUse" && (
-              <div className="space-y-4">
-                <h3 className="font-editorial text-2xl text-elora-charcoal">
-                  Application Ceremony & Protocol
-                </h3>
-                <p>
-                  {product.howToUse ||
-                    "Dispense 3 to 4 drops into the palms of clean hands. Inhale the subtle botanical notes to center your senses. Warm gently between palms and press lightly across forehead, cheeks, jawline, and décolletage."}
-                </p>
-                <div className="p-4 bg-elora-cream/50 border border-elora-border/60 rounded-sm space-y-2">
-                  <p className="font-medium text-elora-charcoal text-xs uppercase tracking-wider">
-                    Routine Placement: Step {product.routineStep}
-                  </p>
-                  <p className="text-xs text-elora-gray">
-                    Cleanse &rarr; Treat ({product.routineStep}) &rarr; Hydrate &rarr; Protect
-                  </p>
-                </div>
-              </div>
-            )}
+              {activeTab === "ingredients" && (
+                <motion.div
+                  key="ingredients"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-6"
+                >
+                  <h3 className="font-editorial text-2xl text-elora-charcoal font-normal">
+                    Transparency Formulation Profile
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {product.productIngredients.map(({ ingredient }) => (
+                      <div
+                        key={ingredient.slug}
+                        className="p-5 bg-elora-surface border border-elora-border rounded-sm space-y-2 shadow-sm"
+                      >
+                        <div className="flex justify-between items-start">
+                          <h4 className="font-editorial text-lg text-elora-charcoal font-medium">
+                            {ingredient.name}
+                          </h4>
+                          <span className="text-[10px] uppercase px-2 py-0.5 bg-elora-forest/10 text-elora-forest rounded-sm font-medium">
+                            {ingredient.safetyRating}
+                          </span>
+                        </div>
+                        <p className="text-xs text-elora-taupe font-medium">{ingredient.benefit}</p>
+                        <p className="text-xs text-elora-gray leading-relaxed font-light">{ingredient.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
 
-            {activeTab === "skinTypes" && (
-              <div className="space-y-4">
-                <h3 className="font-editorial text-2xl text-elora-charcoal">
-                  Suitability & Tolerance Matrix
-                </h3>
-                <div className="space-y-2">
-                  <p>
-                    <strong className="text-elora-charcoal font-medium">Tested Complexions: </strong>
-                    <span className="capitalize">{product.skinTypes.split(",").join(" • ")}</span>
+              {activeTab === "howToUse" && (
+                <motion.div
+                  key="howToUse"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-4"
+                >
+                  <h3 className="font-editorial text-2xl text-elora-charcoal font-normal">
+                    Application Ceremony & Protocol
+                  </h3>
+                  <p className="font-light">
+                    {product.howToUse ||
+                      "Dispense 3 to 4 drops into the palms of clean hands. Inhale the subtle botanical notes to center your senses. Warm gently between palms and press lightly across forehead, cheeks, jawline, and décolletage."}
                   </p>
-                  <p>
-                    <strong className="text-elora-charcoal font-medium">Primary Concerns: </strong>
-                    <span className="capitalize">{product.primaryConcerns.split(",").join(" • ")}</span>
-                  </p>
-                  <p className="pt-2 text-xs text-elora-gray">
-                    Dermatologically validated for daily morning and nighttime application. If you have known botanical allergies, consult our full ingredient index prior to first ritual.
-                  </p>
-                </div>
-              </div>
-            )}
+                  <div className="p-5 bg-elora-cream/50 border border-elora-border rounded-sm space-y-2 shadow-sm">
+                    <p className="font-medium text-elora-charcoal text-xs uppercase tracking-wider">
+                      Routine Placement: Step {product.routineStep}
+                    </p>
+                    <p className="text-xs text-elora-gray font-light">
+                      Cleanse &rarr; Treat ({product.routineStep}) &rarr; Hydrate &rarr; Protect
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+
+              {activeTab === "skinTypes" && (
+                <motion.div
+                  key="skinTypes"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-4"
+                >
+                  <h3 className="font-editorial text-2xl text-elora-charcoal font-normal">
+                    Suitability & Tolerance Matrix
+                  </h3>
+                  <div className="space-y-2">
+                    <p>
+                      <strong className="text-elora-charcoal font-medium">Tested Complexions: </strong>
+                      <span className="capitalize">{product.skinTypes.split(",").join(" • ")}</span>
+                    </p>
+                    <p>
+                      <strong className="text-elora-charcoal font-medium">Primary Concerns: </strong>
+                      <span className="capitalize">{product.primaryConcerns.split(",").join(" • ")}</span>
+                    </p>
+                    <p className="pt-2 text-xs text-elora-gray font-light">
+                      Dermatologically validated for daily morning and nighttime application. If you have known botanical allergies, consult our full ingredient index prior to first ritual.
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 
@@ -537,7 +619,7 @@ export default function ProductDetailClient({
               <span className="text-xs uppercase tracking-ultra text-elora-taupe font-medium">
                 Client Reflections
               </span>
-              <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal mt-1">
+              <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal mt-1 font-normal">
                 Verified Ritual Reviews
               </h2>
             </div>
@@ -564,7 +646,7 @@ export default function ProductDetailClient({
                 product.reviews.map((rev) => (
                   <div
                     key={rev.id}
-                    className="p-6 bg-elora-surface border border-elora-border/70 rounded-sm space-y-3"
+                    className="p-6 bg-elora-surface border border-elora-border rounded-sm space-y-3 shadow-sm"
                   >
                     <div className="flex justify-between items-center">
                       <div className="flex text-elora-sand">
@@ -580,8 +662,8 @@ export default function ProductDetailClient({
                         })}
                       </span>
                     </div>
-                    <h4 className="font-editorial text-lg text-elora-charcoal">{rev.title}</h4>
-                    <p className="text-xs text-elora-gray leading-relaxed font-sans">{rev.comment}</p>
+                    <h4 className="font-editorial text-lg text-elora-charcoal font-normal">{rev.title}</h4>
+                    <p className="text-xs text-elora-gray leading-relaxed font-sans font-light">{rev.comment}</p>
                     <div className="pt-2 flex items-center gap-1.5 text-[11px] text-elora-forest font-medium">
                       <ShieldCheck className="w-3.5 h-3.5" />
                       <span>{rev.authorName} • Verified Ritual Order</span>
@@ -592,11 +674,11 @@ export default function ProductDetailClient({
             </div>
 
             {/* Write a Review Form */}
-            <div className="lg:col-span-5 bg-elora-surface border border-elora-border p-6 rounded-sm space-y-4 h-fit">
-              <h3 className="font-editorial text-2xl text-elora-charcoal">
+            <div className="lg:col-span-5 bg-elora-surface border border-elora-border p-6 rounded-sm space-y-4 h-fit shadow-luxury">
+              <h3 className="font-editorial text-2xl text-elora-charcoal font-normal">
                 Submit Your Impression
               </h3>
-              <p className="text-xs text-elora-gray leading-relaxed">
+              <p className="text-xs text-elora-gray leading-relaxed font-light">
                 Provide feedback to our formulation chemists and assist fellow skincare seekers.
               </p>
 
@@ -617,7 +699,7 @@ export default function ProductDetailClient({
                       placeholder="e.g. Charlotte M."
                       value={reviewAuthor}
                       onChange={(e) => setReviewAuthor(e.target.value)}
-                      className="w-full bg-elora-ivory border border-elora-border px-3 py-2 text-xs text-elora-charcoal focus:outline-none focus:border-elora-taupe rounded-sm"
+                      className="w-full bg-elora-ivory border border-elora-border px-3.5 py-2 text-xs text-elora-charcoal focus:outline-none focus:border-elora-taupe rounded-sm"
                     />
                   </div>
 
@@ -631,7 +713,8 @@ export default function ProductDetailClient({
                           key={star}
                           type="button"
                           onClick={() => setReviewRating(star)}
-                          className="p-1"
+                          className="p-1 hover:scale-110 transition-transform"
+                          aria-label={`Rate ${star} stars`}
                         >
                           <Star
                             className={`w-5 h-5 ${
@@ -655,7 +738,7 @@ export default function ProductDetailClient({
                       placeholder="e.g. Exceptional barrier soothing"
                       value={reviewTitle}
                       onChange={(e) => setReviewTitle(e.target.value)}
-                      className="w-full bg-elora-ivory border border-elora-border px-3 py-2 text-xs text-elora-charcoal focus:outline-none focus:border-elora-taupe rounded-sm"
+                      className="w-full bg-elora-ivory border border-elora-border px-3.5 py-2 text-xs text-elora-charcoal focus:outline-none focus:border-elora-taupe rounded-sm"
                     />
                   </div>
 
@@ -669,17 +752,19 @@ export default function ProductDetailClient({
                       placeholder="Describe the texture, absorption, and results observed on your complexion..."
                       value={reviewComment}
                       onChange={(e) => setReviewComment(e.target.value)}
-                      className="w-full bg-elora-ivory border border-elora-border px-3 py-2 text-xs text-elora-charcoal focus:outline-none focus:border-elora-taupe rounded-sm"
+                      className="w-full bg-elora-ivory border border-elora-border px-3.5 py-2 text-xs text-elora-charcoal focus:outline-none focus:border-elora-taupe rounded-sm"
                     />
                   </div>
 
-                  <button
+                  <Button
                     type="submit"
-                    disabled={reviewLoading}
-                    className="w-full py-3 bg-elora-charcoal text-elora-ivory text-xs uppercase tracking-luxury hover:bg-elora-taupe transition-colors duration-300 font-medium rounded-sm"
+                    variant="forest"
+                    size="md"
+                    isLoading={reviewLoading}
+                    className="w-full"
                   >
-                    {reviewLoading ? "Submitting..." : "Submit Review"}
-                  </button>
+                    <span>Submit Impression</span>
+                  </Button>
                 </form>
               )}
             </div>
@@ -693,7 +778,7 @@ export default function ProductDetailClient({
               <span className="text-xs uppercase tracking-ultra text-elora-taupe font-medium">
                 Ritual Harmonizers
               </span>
-              <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal mt-1">
+              <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal mt-1 font-normal">
                 Complementary Formulations
               </h2>
             </div>
@@ -706,7 +791,62 @@ export default function ProductDetailClient({
           </section>
         )}
       </div>
+
+      {/* Floating Sticky Purchase Bar on Scroll */}
+      <AnimatePresence>
+        {showStickyBar && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed bottom-0 inset-x-0 z-40 bg-elora-surface/95 backdrop-blur-md border-t border-elora-border py-3 px-4 sm:px-8 shadow-2xl"
+          >
+            <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="relative w-11 h-13 bg-elora-cream rounded-sm overflow-hidden flex-shrink-0 border border-elora-border hidden sm:block">
+                  <Image
+                    src={images[0]?.url}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <h4 className="font-editorial text-base sm:text-lg text-elora-charcoal truncate font-normal">
+                    {product.name}
+                  </h4>
+                  <p className="text-[11px] text-elora-gray truncate font-sans">
+                    {currentVariant?.title} • {formatPrice(currentPrice)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <Button
+                  variant="forest"
+                  size="md"
+                  onClick={() => handleAddToCart(false)}
+                  disabled={isAdding || !currentVariant || currentVariant.stock <= 0}
+                  className="shadow-md whitespace-nowrap"
+                >
+                  {isAdding ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 mr-1.5 text-elora-sand" />
+                      <span>Added</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingBag className="w-3.5 h-3.5 mr-1.5 text-elora-sand" />
+                      <span>Add to Bag — {formatPrice(currentPrice * quantity)}</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
-

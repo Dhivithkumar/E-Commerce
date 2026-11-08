@@ -2,7 +2,9 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ChevronDown, Sparkles, HelpCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDown, Sparkles, HelpCircle, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 const FAQS = [
   {
@@ -19,7 +21,7 @@ const FAQS = [
   },
   {
     q: "What is the recommended ritual sequencing?",
-    a: "Our golden rule of physiological layering is: Cleanse &rarr; Treat &rarr; Hydrate &rarr; Protect. Begin with our transforming Cleansing Elixir, apply our Cellular Renewal Concentrate while skin is receptive, seal with our Barrier Restorative Crème, and conclude with our Invisible Silk Mineral Fluid SPF 50+ in the morning.",
+    a: "Our golden rule of physiological layering is: Cleanse → Treat → Hydrate → Protect. Begin with our transforming Cleansing Elixir, apply our Cellular Renewal Concentrate while skin is receptive, seal with our Barrier Restorative Crème, and conclude with our Invisible Silk Mineral Fluid SPF 50+ in the morning.",
   },
   {
     q: "Which international currencies and destinations do you support?",
@@ -37,10 +39,10 @@ export default function FAQPage() {
           <span className="text-xs uppercase tracking-ultra text-elora-taupe font-medium">
             House Knowledge
           </span>
-          <h1 className="font-editorial text-4xl sm:text-5xl text-elora-charcoal mt-1">
+          <h1 className="font-editorial text-4xl sm:text-5xl text-elora-charcoal mt-1 font-normal">
             Frequently Answered Inquiries
           </h1>
-          <p className="text-xs sm:text-sm text-elora-gray mt-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-elora-gray mt-2 leading-relaxed font-sans font-light">
             Everything you need to know about our scientific formulations, international dispatch, and personalized diagnostic ceremonies.
           </p>
         </div>
@@ -53,45 +55,55 @@ export default function FAQPage() {
             >
               <button
                 onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
-                className="w-full p-6 text-left flex items-center justify-between gap-4"
+                className="w-full p-6 text-left flex items-center justify-between gap-4 transition-colors hover:bg-elora-cream/20"
+                aria-expanded={openIndex === idx}
               >
                 <h3 className="font-editorial text-xl text-elora-charcoal font-medium">
                   {faq.q}
                 </h3>
                 <ChevronDown
-                  className={`w-4 h-4 text-elora-taupe transition-transform flex-shrink-0 ${
-                    openIndex === idx ? "rotate-180" : ""
+                  className={`w-4 h-4 text-elora-taupe transition-transform duration-300 flex-shrink-0 ${
+                    openIndex === idx ? "rotate-180 text-elora-forest" : ""
                   }`}
                 />
               </button>
 
-              {openIndex === idx && (
-                <div className="px-6 pb-6 text-xs sm:text-sm text-elora-gray leading-relaxed font-sans border-t border-elora-border/50 pt-4">
-                  {faq.a}
-                </div>
-              )}
+              <AnimatePresence>
+                {openIndex === idx && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-6 pb-6 text-xs sm:text-sm text-elora-gray leading-relaxed font-sans font-light border-t border-elora-border/60 pt-4">
+                      {faq.a}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ))}
         </div>
 
         <div className="p-8 bg-elora-forest text-elora-ivory rounded-sm shadow-luxury flex flex-col sm:flex-row items-center justify-between gap-6 border border-elora-sand/20">
           <div className="space-y-1 text-center sm:text-left">
-            <h4 className="font-editorial text-2xl text-elora-sand">
+            <h4 className="font-editorial text-2xl text-elora-sand font-normal">
               Require Tailored Aesthetic Guidance?
             </h4>
-            <p className="text-xs text-elora-sand/80 font-sans">
+            <p className="text-xs text-elora-sand/80 font-sans font-light">
               Engage with our AI Skincare Concierge in the lower corner or consult our diagnostic questionnaire.
             </p>
           </div>
-          <Link
-            href="/skin-discovery"
-            className="px-6 py-3 bg-elora-sand text-elora-forest hover:bg-elora-ivory text-xs uppercase tracking-luxury font-medium rounded-sm whitespace-nowrap"
-          >
-            Take Skin Discovery Quiz
+          <Link href="/skin-discovery">
+            <Button variant="primary" size="md" className="whitespace-nowrap">
+              <span>Take Skin Discovery Quiz</span>
+              <ArrowRight className="w-3.5 h-3.5 ml-2" />
+            </Button>
           </Link>
         </div>
       </div>
     </div>
   );
 }
-

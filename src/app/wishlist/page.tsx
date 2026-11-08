@@ -7,6 +7,8 @@ import { Heart, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { useWishlist } from "@/components/providers/WishlistProvider";
 import { useCart } from "@/components/providers/CartProvider";
 import { useCurrency } from "@/components/providers/CurrencyProvider";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Button } from "@/components/ui/Button";
 
 interface ProductItem {
   id: string;
@@ -35,8 +37,6 @@ export default function WishlistPage() {
         return;
       }
       try {
-        const res = await fetch("/api/products/search?q=");
-        // Or fetch all products and filter
         const catalogRes = await fetch("/api/products/all");
         const data = await catalogRes.json();
         const matched = (data.products || []).filter((p: any) =>
@@ -62,31 +62,25 @@ export default function WishlistPage() {
           <h1 className="font-editorial text-4xl sm:text-5xl text-elora-charcoal mt-1">
             Your Private Wishlist
           </h1>
-          <p className="text-xs sm:text-sm text-elora-gray mt-2 font-sans">
+          <p className="text-xs sm:text-sm text-elora-gray mt-2 font-sans font-light">
             Formulations reserved for your future ceremonies and aesthetic transformations.
           </p>
         </div>
 
         {wishlistIds.length === 0 ? (
-          <div className="py-20 text-center bg-elora-surface border border-elora-border rounded-sm p-8 max-w-xl mx-auto">
-            <Heart className="w-10 h-10 text-elora-taupe mx-auto mb-3" />
-            <h3 className="font-editorial text-2xl text-elora-charcoal">Your Wishlist is Empty</h3>
-            <p className="text-xs text-elora-gray mt-2 leading-relaxed">
-              Explore our verified clinical catalog and tap the heart icon on any formulation to save it here.
-            </p>
-            <Link
-              href="/shop"
-              className="inline-block mt-6 px-8 py-3 bg-elora-charcoal text-elora-ivory text-xs uppercase tracking-luxury hover:bg-elora-taupe transition-colors rounded-sm font-medium"
-            >
-              Explore Formulations
-            </Link>
-          </div>
+          <EmptyState
+            icon={Heart}
+            title="Your Wishlist is Empty"
+            description="Explore our verified clinical catalog and tap the heart icon on any formulation to save it here for later."
+            actionText="Explore Formulations"
+            actionHref="/shop"
+          />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {products.map((p) => (
               <div
                 key={p.id}
-                className="bg-elora-surface border border-elora-border rounded-sm overflow-hidden flex flex-col justify-between group"
+                className="bg-elora-surface border border-elora-border rounded-sm overflow-hidden flex flex-col justify-between group shadow-sm hover:shadow-luxury transition-all duration-300"
               >
                 <div className="relative aspect-[4/5] bg-elora-cream">
                   <Image
@@ -97,52 +91,63 @@ export default function WishlistPage() {
                   />
                   <button
                     onClick={() => toggleWishlist(p.id)}
-                    className="absolute top-3 right-3 p-2 bg-white/80 hover:bg-white text-red-600 rounded-full transition-colors"
-                    title="Remove from wishlist"
+                    className="absolute top-3 right-3 p-2 bg-white/85 hover:bg-white text-elora-charcoal hover:text-red-600 rounded-full transition-colors shadow-sm"
+                    aria-label="Remove from wishlist"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
 
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                   <div>
-                    <span className="text-[10px] uppercase tracking-wider text-elora-taupe">
+                    <span className="text-[10px] uppercase tracking-ultra text-elora-gray">
                       {p.categoryName}
                     </span>
                     <Link href={`/shop/${p.slug}`}>
-                      <h3 className="font-editorial text-xl text-elora-charcoal hover:text-elora-taupe transition-colors">
+                      <h3 className="font-editorial text-xl text-elora-charcoal hover:text-elora-taupe transition-colors mt-0.5">
                         {p.name}
                       </h3>
                     </Link>
                     {p.subtitle && (
-                      <p className="text-xs text-elora-gray mt-0.5 line-clamp-1">{p.subtitle}</p>
+                      <p className="text-xs text-elora-gray line-clamp-1 mt-1 font-light">
+                        {p.subtitle}
+                      </p>
                     )}
+                    <p className="text-sm font-medium text-elora-charcoal mt-2">
+                      {formatPrice(p.basePrice)}
+                    </p>
                   </div>
 
-                  <div className="pt-3 border-t border-elora-border/60 flex items-center justify-between">
-                    <span className="text-sm font-medium text-elora-charcoal">
-                      {formatPrice(p.basePrice)}
-                    </span>
-
-                    <button
-                      onClick={() =>
-                        addItem({
-                          id: p.variantId || p.id,
-                          productId: p.id,
-                          name: p.name,
-                          subtitle: p.subtitle,
-                          variantTitle: "Standard Volume",
-                          sku: p.slug,
-                          price: p.basePrice,
-                          image: p.imageUrl,
-                          maxStock: p.stock || 50,
-                        })
-                      }
-                      className="px-4 py-2 bg-elora-charcoal text-elora-ivory text-xs uppercase tracking-luxury hover:bg-elora-taupe transition-colors flex items-center gap-1.5 rounded-sm"
+                  <div className="pt-3 border-t border-elora-border flex items-center gap-3">
+                    <Button
+                      variant="forest"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => {
+                        addItem(
+                          {
+                            id: p.variantId || p.id,
+                            productId: p.id,
+                            name: p.name,
+                            subtitle: p.subtitle,
+                            variantTitle: "Standard Volume",
+                            sku: `ELORA-${p.id.slice(0, 5).toUpperCase()}`,
+                            price: p.basePrice,
+                            image: p.imageUrl,
+                            maxStock: p.stock || 10,
+                          },
+                          1
+                        );
+                      }}
                     >
-                      <ShoppingBag className="w-3.5 h-3.5" />
+                      <ShoppingBag className="w-3.5 h-3.5 mr-2 text-elora-sand" />
                       <span>Move to Bag</span>
-                    </button>
+                    </Button>
+                    <Link href={`/shop/${p.slug}`}>
+                      <Button variant="outline" size="sm">
+                        <span>Details</span>
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -153,4 +158,3 @@ export default function WishlistPage() {
     </div>
   );
 }
-

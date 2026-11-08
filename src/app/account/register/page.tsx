@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, ShieldCheck } from "lucide-react";
+import { ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -27,7 +28,7 @@ export default function RegisterPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Failed to register.");
+        throw new Error(data.message || "Registration could not be completed.");
       }
 
       router.push("/account");
@@ -39,17 +40,19 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-[80vh] bg-elora-ivory flex items-center justify-center py-16 px-4">
+    <div className="min-h-[82vh] bg-elora-ivory flex items-center justify-center py-16 px-4">
       <div className="w-full max-w-md bg-elora-surface border border-elora-border p-8 sm:p-10 rounded-sm shadow-luxury space-y-6">
         <div className="text-center space-y-2">
-          <span className="font-editorial text-3xl tracking-[0.2em] text-elora-charcoal uppercase block">
-            ÉLORA
-          </span>
+          <Link href="/" className="inline-block group">
+            <span className="font-editorial text-3xl tracking-[0.22em] text-elora-charcoal uppercase block group-hover:text-elora-taupe transition-colors">
+              ÉLORA
+            </span>
+          </Link>
           <h1 className="font-editorial text-2xl text-elora-charcoal font-normal">
-            Create Your Client Profile
+            Create Client Profile
           </h1>
-          <p className="text-xs text-elora-gray">
-            Join our circle for personalized diagnostic archives and exclusive invitations.
+          <p className="text-xs text-elora-gray font-sans font-light">
+            Register to preserve personalized diagnostic rituals, track orders, and receive small-batch release privileges.
           </p>
         </div>
 
@@ -67,7 +70,7 @@ export default function RegisterPage() {
             <input
               type="text"
               required
-              placeholder="Sophia Vane"
+              placeholder="e.g. Eleanor Berkeley"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full bg-elora-ivory border border-elora-border px-3.5 py-2.5 text-xs text-elora-charcoal focus:outline-none focus:border-elora-taupe rounded-sm"
@@ -81,7 +84,7 @@ export default function RegisterPage() {
             <input
               type="email"
               required
-              placeholder="sophia@domain.com"
+              placeholder="e.g. eleanor@domain.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-elora-ivory border border-elora-border px-3.5 py-2.5 text-xs text-elora-charcoal focus:outline-none focus:border-elora-taupe rounded-sm"
@@ -89,13 +92,16 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="text-[11px] uppercase tracking-wider text-elora-charcoal block mb-1">
-              Password (Minimum 6 Characters)
-            </label>
+            <div className="flex justify-between items-center mb-1">
+              <label className="text-[11px] uppercase tracking-wider text-elora-charcoal">
+                Password
+              </label>
+              <span className="text-[10px] text-elora-gray">Minimum 8 characters</span>
+            </div>
             <input
               type="password"
               required
-              minLength={6}
+              minLength={8}
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -103,33 +109,33 @@ export default function RegisterPage() {
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3.5 bg-elora-charcoal text-elora-ivory text-xs uppercase tracking-luxury hover:bg-elora-taupe transition-colors duration-300 font-medium rounded-sm flex items-center justify-center gap-2 group disabled:opacity-50"
-          >
-            {loading ? (
-              <span>Registering Profile...</span>
-            ) : (
-              <>
-                <span>Create Client Profile</span>
-                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-              </>
-            )}
-          </button>
+          <div className="pt-2">
+            <Button
+              type="submit"
+              variant="forest"
+              size="lg"
+              isLoading={loading}
+              className="w-full shadow-luxury"
+            >
+              <span>Create Account</span>
+              <ArrowRight className="w-3.5 h-3.5 ml-2" />
+            </Button>
+          </div>
         </form>
 
-        <div className="pt-4 border-t border-elora-border/60 flex items-center justify-between text-xs text-elora-gray">
-          <span>Already registered?</span>
-          <Link
-            href="/account/login"
-            className="text-elora-taupe hover:text-elora-charcoal font-medium underline"
-          >
-            Sign In Here
-          </Link>
+        <div className="pt-4 border-t border-elora-border text-center text-xs text-elora-gray space-y-2">
+          <p>
+            Already an ÉLORA member?{" "}
+            <Link href="/account/login" className="text-elora-taupe underline font-medium">
+              Sign In
+            </Link>
+          </p>
+          <div className="flex items-center justify-center gap-1.5 text-[11px] text-elora-gray">
+            <ShieldCheck className="w-3.5 h-3.5 text-elora-taupe" />
+            <span>256-Bit SSL Transport Security</span>
+          </div>
         </div>
       </div>
     </div>
   );
 }
-

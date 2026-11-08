@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
   ArrowRight,
@@ -15,15 +16,18 @@ import {
   Sun,
   Shield,
   Layers,
+  Heart,
 } from "lucide-react";
 import { useCart } from "@/components/providers/CartProvider";
 import { useCurrency } from "@/components/providers/CurrencyProvider";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 
 const SKIN_TYPES = [
   {
     id: "dry",
     title: "Dry / Depleted",
-    desc: "Feels tight after cleansing, lacks native oil, prone to flaking or dullness.",
+    desc: "Feels tight after cleansing, lacks native lipids, prone to flaking or dullness.",
   },
   {
     id: "combination",
@@ -137,48 +141,62 @@ export default function SkinDiscoveryPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Step 0: Editorial Introduction */}
         {step === 0 && (
-          <div className="bg-elora-surface border border-elora-border p-8 sm:p-14 rounded-sm shadow-luxury text-center space-y-6">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-elora-forest/10 border border-elora-forest/20 rounded-full text-elora-forest text-xs tracking-ultra uppercase font-sans">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="bg-elora-surface border border-elora-border p-8 sm:p-14 rounded-sm shadow-luxury text-center space-y-6"
+          >
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-elora-sand/20 border border-elora-sand/40 rounded-full text-elora-forest text-xs tracking-ultra uppercase font-sans font-medium">
               <Sparkles className="w-3.5 h-3.5 text-elora-taupe" />
-              <span>Biomimetic Skincare Diagnostic</span>
+              <span>Biomimetic Skincare Consultation</span>
             </div>
 
             <h1 className="font-editorial text-4xl sm:text-6xl text-elora-charcoal font-normal leading-tight">
-              Personalized Skincare Diagnostic
+              Personalized Skincare Consultation
             </h1>
 
-            <p className="text-xs sm:text-sm text-elora-gray max-w-xl mx-auto leading-relaxed font-sans">
+            <p className="text-xs sm:text-sm text-elora-gray max-w-xl mx-auto leading-relaxed font-sans font-light">
               Our diagnostic engine evaluates your epidermal barrier integrity, lifestyle stressors, and moisture retention tiers. Through algorithmic compatibility matching, we formulate a harmonious ritual unique to your complexion.
             </p>
 
             <div className="pt-4 flex justify-center">
-              <button
+              <Button
+                variant="forest"
+                size="lg"
                 onClick={() => setStep(1)}
-                className="px-8 py-4 bg-elora-charcoal text-elora-ivory text-xs uppercase tracking-luxury hover:bg-elora-taupe transition-colors duration-300 rounded-sm font-medium flex items-center gap-2 group shadow-md"
+                className="shadow-luxury"
               >
-                <span>Initiate Diagnostic (2 Mins)</span>
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </button>
+                <span>Initiate Consultation (2 Mins)</span>
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
             </div>
 
-            <p className="text-[11px] text-elora-gray/80 pt-4 border-t border-elora-border/60 max-w-md mx-auto">
-              Diagnostic notice: This experience provides cosmetic formulation recommendations for daily skincare ceremonies and does not constitute clinical medical diagnosis.
+            <p className="text-[10.5px] text-elora-gray/80 pt-4 border-t border-elora-border max-w-md mx-auto font-light">
+              Consultation notice: This experience provides cosmetic formulation recommendations for daily skincare ceremonies and does not constitute clinical medical diagnosis.
             </p>
-          </div>
+          </motion.div>
         )}
 
         {/* Step 1 to 4: Interactive Diagnostic Flow */}
         {step >= 1 && step <= 4 && (
-          <div className="bg-elora-surface border border-elora-border p-8 sm:p-12 rounded-sm shadow-luxury space-y-8">
+          <motion.div
+            key={`step-${step}`}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.4 }}
+            className="bg-elora-surface border border-elora-border p-8 sm:p-12 rounded-sm shadow-luxury space-y-8"
+          >
             {/* Progress Header */}
             <div className="space-y-2">
               <div className="flex justify-between items-center text-xs uppercase tracking-ultra text-elora-gray">
                 <span>Diagnostic Step {step} of 4</span>
                 <span className="text-elora-taupe font-semibold">{step * 25}% Complete</span>
               </div>
-              <div className="w-full bg-elora-border h-1 rounded-full overflow-hidden">
+              <div className="w-full bg-elora-border h-1.5 rounded-full overflow-hidden">
                 <div
-                  className="bg-elora-taupe h-full transition-all duration-500 ease-out"
+                  className="bg-elora-forest h-full transition-all duration-500 ease-out rounded-full"
                   style={{ width: `${step * 25}%` }}
                 />
               </div>
@@ -188,10 +206,10 @@ export default function SkinDiscoveryPage() {
             {step === 1 && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal">
+                  <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal font-normal">
                     How does your complexion behave throughout the day?
                   </h2>
-                  <p className="text-xs text-elora-gray mt-1">
+                  <p className="text-xs text-elora-gray mt-1 font-light">
                     Select the profile that most accurately mirrors your bare skin two hours after cleansing.
                   </p>
                 </div>
@@ -204,13 +222,13 @@ export default function SkinDiscoveryPage() {
                       className={`p-5 text-left border rounded-sm transition-all ${
                         skinType === t.id
                           ? "border-elora-charcoal bg-elora-cream/40 ring-1 ring-elora-charcoal"
-                          : "border-elora-border/70 hover:border-elora-border bg-elora-surface"
+                          : "border-elora-border hover:border-elora-taupe/40 bg-elora-surface"
                       }`}
                     >
                       <h3 className="font-editorial text-xl text-elora-charcoal font-medium">
                         {t.title}
                       </h3>
-                      <p className="text-xs text-elora-gray mt-1 leading-relaxed">{t.desc}</p>
+                      <p className="text-xs text-elora-gray mt-1 leading-relaxed font-light">{t.desc}</p>
                     </button>
                   ))}
                 </div>
@@ -221,10 +239,10 @@ export default function SkinDiscoveryPage() {
             {step === 2 && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal">
+                  <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal font-normal">
                     Which target concerns do you wish to address?
                   </h2>
-                  <p className="text-xs text-elora-gray mt-1">
+                  <p className="text-xs text-elora-gray mt-1 font-light">
                     Select all that apply. Our engine will prioritize active compatibility.
                   </p>
                 </div>
@@ -240,7 +258,7 @@ export default function SkinDiscoveryPage() {
                         className={`p-4 text-left border rounded-sm flex items-center justify-between transition-all ${
                           isSelected
                             ? "border-elora-charcoal bg-elora-cream/40 ring-1 ring-elora-charcoal"
-                            : "border-elora-border/70 hover:border-elora-border bg-elora-surface"
+                            : "border-elora-border hover:border-elora-taupe/40 bg-elora-surface"
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -259,10 +277,10 @@ export default function SkinDiscoveryPage() {
             {step === 3 && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal">
+                  <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal font-normal">
                     What is your prevailing daily living climate?
                   </h2>
-                  <p className="text-xs text-elora-gray mt-1">
+                  <p className="text-xs text-elora-gray mt-1 font-light">
                     Ambient humidity and free radical exposure heavily modulate moisture evaporation rates.
                   </p>
                 </div>
@@ -275,7 +293,7 @@ export default function SkinDiscoveryPage() {
                       className={`w-full p-4 text-left border rounded-sm transition-all text-xs font-medium ${
                         environment === env.id
                           ? "border-elora-charcoal bg-elora-cream/40 ring-1 ring-elora-charcoal text-elora-charcoal"
-                          : "border-elora-border/70 hover:border-elora-border bg-elora-surface text-elora-gray"
+                          : "border-elora-border hover:border-elora-taupe/40 bg-elora-surface text-elora-gray"
                       }`}
                     >
                       {env.title}
@@ -289,10 +307,10 @@ export default function SkinDiscoveryPage() {
             {step === 4 && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal">
+                  <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal font-normal">
                     What is your desired ritual ceremony complexity?
                   </h2>
-                  <p className="text-xs text-elora-gray mt-1">
+                  <p className="text-xs text-elora-gray mt-1 font-light">
                     Select how many minutes you prefer to dedicate morning and night.
                   </p>
                 </div>
@@ -305,7 +323,7 @@ export default function SkinDiscoveryPage() {
                       className={`w-full p-4 text-left border rounded-sm transition-all text-xs font-medium ${
                         preference === pref.id
                           ? "border-elora-charcoal bg-elora-cream/40 ring-1 ring-elora-charcoal text-elora-charcoal"
-                          : "border-elora-border/70 hover:border-elora-border bg-elora-surface text-elora-gray"
+                          : "border-elora-border hover:border-elora-taupe/40 bg-elora-surface text-elora-gray"
                       }`}
                     >
                       {pref.title}
@@ -316,39 +334,43 @@ export default function SkinDiscoveryPage() {
             )}
 
             {/* Step Navigation Controls */}
-            <div className="pt-6 border-t border-elora-border/60 flex items-center justify-between">
-              <button
+            <div className="pt-6 border-t border-elora-border flex items-center justify-between">
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setStep(step - 1)}
-                className="px-4 py-2 border border-elora-border text-xs uppercase tracking-wider text-elora-charcoal hover:bg-elora-cream rounded-sm flex items-center gap-1.5"
               >
-                <ArrowLeft className="w-3.5 h-3.5" />
+                <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
                 <span>Previous</span>
-              </button>
+              </Button>
 
               {step < 4 ? (
-                <button
+                <Button
+                  variant="forest"
+                  size="sm"
                   disabled={
                     (step === 1 && !skinType) ||
                     (step === 2 && selectedConcerns.length === 0) ||
                     (step === 3 && !environment)
                   }
                   onClick={() => setStep(step + 1)}
-                  className="px-6 py-2.5 bg-elora-charcoal text-elora-ivory text-xs uppercase tracking-luxury hover:bg-elora-taupe rounded-sm flex items-center gap-2 disabled:opacity-40"
                 >
                   <span>Continue</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+                  <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                </Button>
               ) : (
-                <button
+                <Button
+                  variant="primary"
+                  size="md"
                   onClick={handleDiagnose}
-                  className="px-8 py-3 bg-elora-forest text-elora-sand hover:bg-elora-taupe hover:text-white text-xs uppercase tracking-luxury font-medium rounded-sm flex items-center gap-2 shadow-lg"
+                  className="shadow-luxury"
                 >
-                  <Sparkles className="w-4 h-4" />
+                  <Sparkles className="w-4 h-4 mr-2" />
                   <span>Synthesize Prescribed Ritual</span>
-                </button>
+                </Button>
               )}
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Step 5: Loading State or Prescribed Results */}
@@ -359,32 +381,35 @@ export default function SkinDiscoveryPage() {
                 <div className="w-12 h-12 rounded-full bg-elora-forest text-elora-sand flex items-center justify-center mx-auto animate-pulse">
                   <Sparkles className="w-6 h-6 animate-spin" />
                 </div>
-                <h3 className="font-editorial text-3xl text-elora-charcoal">
+                <h3 className="font-editorial text-3xl text-elora-charcoal font-normal">
                   Synthesizing Dermal Compatibility
                 </h3>
-                <p className="text-xs text-elora-gray max-w-sm mx-auto leading-relaxed">
+                <p className="text-xs text-elora-gray max-w-sm mx-auto leading-relaxed font-light">
                   Evaluating lipid replenishment ratios, osmoprotectants, and molecular peptide compatibility...
                 </p>
               </div>
             ) : result ? (
-              <div className="space-y-10">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="space-y-10"
+              >
                 {/* Consultation Card */}
                 <div className="bg-elora-surface border border-elora-border p-8 sm:p-10 rounded-sm shadow-luxury space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-elora-border/60 gap-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-elora-border gap-2">
                     <div>
                       <span className="text-[10px] uppercase tracking-ultra text-elora-taupe font-medium">
                         Prescribed Diagnostic Protocol
                       </span>
-                      <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal mt-0.5">
+                      <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal mt-0.5 font-normal">
                         Your Harmonized Cellular Ritual
                       </h2>
                     </div>
-                    <span className="text-xs font-semibold px-3 py-1 bg-elora-forest text-elora-sand rounded-full uppercase tracking-wider h-fit">
-                      {result.skinType} Protocol
-                    </span>
+                    <Badge variant="bestseller">{result.skinType} Protocol</Badge>
                   </div>
 
-                  <div className="prose text-xs sm:text-sm text-elora-gray font-sans leading-relaxed whitespace-pre-line">
+                  <div className="prose text-xs sm:text-sm text-elora-gray font-sans leading-relaxed whitespace-pre-line font-light">
                     {result.rationale}
                   </div>
                 </div>
@@ -392,7 +417,7 @@ export default function SkinDiscoveryPage() {
                 {/* Formulations in the Ritual */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-editorial text-2xl text-elora-charcoal">
+                    <h3 className="font-editorial text-2xl text-elora-charcoal font-normal">
                       Prescribed Formulations ({result.routine?.length || 0})
                     </h3>
                     <span className="text-xs text-elora-taupe font-medium">
@@ -406,7 +431,7 @@ export default function SkinDiscoveryPage() {
                         key={item.id}
                         className="bg-elora-surface border border-elora-border p-5 rounded-sm flex gap-4 shadow-sm"
                       >
-                        <div className="relative w-20 h-24 bg-elora-cream rounded-sm overflow-hidden flex-shrink-0">
+                        <div className="relative w-20 h-24 bg-elora-cream rounded-sm overflow-hidden flex-shrink-0 border border-elora-border">
                           <Image src={item.imageUrl} alt={item.name} fill className="object-cover" />
                         </div>
                         <div className="flex-1 flex flex-col justify-between">
@@ -415,13 +440,13 @@ export default function SkinDiscoveryPage() {
                               Step {idx + 1} • {item.step}
                             </span>
                             <Link href={`/shop/${item.slug}`}>
-                              <h4 className="font-editorial text-lg text-elora-charcoal hover:text-elora-taupe line-clamp-1">
+                              <h4 className="font-editorial text-lg text-elora-charcoal hover:text-elora-taupe line-clamp-1 font-normal">
                                 {item.name}
                               </h4>
                             </Link>
-                            <p className="text-[11px] text-elora-gray line-clamp-1">{item.subtitle}</p>
+                            <p className="text-[11px] text-elora-gray line-clamp-1 font-light">{item.subtitle}</p>
                           </div>
-                          <div className="flex items-center justify-between pt-2 border-t border-elora-border/60 text-xs">
+                          <div className="flex items-center justify-between pt-2 border-t border-elora-border text-xs">
                             <span className="font-medium text-elora-charcoal">
                               {formatPrice(item.price)}
                             </span>
@@ -439,43 +464,47 @@ export default function SkinDiscoveryPage() {
                     <span className="text-[10px] uppercase tracking-ultra text-elora-sand font-medium">
                       Diagnostic Privilege Gift
                     </span>
-                    <h3 className="font-editorial text-2xl text-elora-ivory">
+                    <h3 className="font-editorial text-2xl text-elora-ivory font-normal">
                       Begin Your Full Prescribed Ritual
                     </h3>
-                    <p className="text-xs text-elora-sand/80 font-sans">
+                    <p className="text-xs text-elora-sand/80 font-sans font-light">
                       Enjoy 15% complimentary savings with privilege code{" "}
-                      <strong className="text-elora-sand">WELCOME15</strong> automatically applied.
+                      <strong className="text-elora-sand font-medium">WELCOME15</strong> automatically applied.
                     </p>
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                    <button
+                    <Button
+                      variant="primary"
+                      size="lg"
                       onClick={handleAddAllToCart}
                       disabled={addedAll}
-                      className="px-6 py-3.5 bg-elora-sand text-elora-forest hover:bg-elora-ivory text-xs uppercase tracking-luxury font-medium transition-colors rounded-sm flex items-center justify-center gap-2 whitespace-nowrap shadow-md"
+                      className="shadow-md whitespace-nowrap"
                     >
                       {addedAll ? (
                         <>
-                          <Check className="w-4 h-4 text-elora-forest" />
+                          <Check className="w-4 h-4 mr-2" />
                           <span>All Formulations Added</span>
                         </>
                       ) : (
                         <>
-                          <ShoppingBag className="w-4 h-4" />
+                          <ShoppingBag className="w-4 h-4 mr-2" />
                           <span>Add Complete Ritual to Bag</span>
                         </>
                       )}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="md"
                       onClick={() => setStep(1)}
-                      className="px-4 py-3 bg-white/10 text-elora-sand hover:bg-white/20 text-xs uppercase tracking-wider rounded-sm flex items-center justify-center gap-1.5"
+                      className="border-elora-sand/30 text-elora-sand hover:bg-white/10"
                     >
-                      <RotateCcw className="w-3.5 h-3.5" />
+                      <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
                       <span>Retake</span>
-                    </button>
+                    </Button>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ) : null}
           </div>
         )}
@@ -483,4 +512,3 @@ export default function SkinDiscoveryPage() {
     </div>
   );
 }
-

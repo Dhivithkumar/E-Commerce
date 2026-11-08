@@ -7,6 +7,7 @@ import { Heart, Star, ShoppingBag, Check } from "lucide-react";
 import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/components/providers/WishlistProvider";
 import { useCurrency } from "@/components/providers/CurrencyProvider";
+import { Badge } from "@/components/ui/Badge";
 
 export interface ProductCardProps {
   product: {
@@ -36,9 +37,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     product.images?.[0]?.url ||
     "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=85";
 
-  const secondaryImage =
-    product.images?.[1]?.url || primaryImage;
-
+  const secondaryImage = product.images?.[1]?.url || primaryImage;
   const inWishlist = isInWishlist(product.id);
 
   // Review calculations
@@ -73,11 +72,11 @@ export default function ProductCard({ product }: ProductCardProps) {
       1
     );
 
-    setTimeout(() => setIsAdding(false), 800);
+    setTimeout(() => setIsAdding(false), 900);
   };
 
   return (
-    <div className="group relative flex flex-col bg-elora-surface border border-elora-border/60 hover:border-elora-taupe/40 transition-all duration-500 rounded-sm overflow-hidden hover:shadow-luxury">
+    <div className="group relative flex flex-col bg-elora-surface border border-elora-border hover:border-elora-taupe/40 transition-all duration-500 rounded-sm overflow-hidden hover:shadow-luxury">
       {/* Top Image Vessel */}
       <Link href={`/shop/${product.slug}`} className="relative block aspect-[4/5] bg-elora-cream/40 overflow-hidden">
         {/* Primary Image */}
@@ -101,9 +100,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Badge */}
         {product.badge && (
           <div className="absolute top-3 left-3 z-10">
-            <span className="px-2.5 py-1 bg-elora-forest/90 text-elora-sand text-[10px] uppercase tracking-luxury font-medium backdrop-blur-sm rounded-sm">
-              {product.badge}
-            </span>
+            <Badge variant="bestseller">{product.badge}</Badge>
           </div>
         )}
 
@@ -115,21 +112,21 @@ export default function ProductCard({ product }: ProductCardProps) {
             toggleWishlist(product.id);
           }}
           aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
-          className={`absolute top-3 right-3 z-10 p-2 rounded-full transition-all duration-300 ${
+          className={`absolute top-3 right-3 z-10 p-2 rounded-full transition-all duration-300 shadow-sm ${
             inWishlist
-              ? "bg-elora-taupe text-white"
-              : "bg-white/80 text-elora-charcoal hover:bg-white hover:text-elora-taupe opacity-0 group-hover:opacity-100"
+              ? "bg-elora-taupe text-white opacity-100"
+              : "bg-white/85 text-elora-charcoal hover:bg-white hover:text-elora-taupe opacity-90 sm:opacity-0 group-hover:opacity-100"
           }`}
         >
-          <Heart className={`w-4 h-4 ${inWishlist ? "fill-current" : ""}`} />
+          <Heart className={`w-3.5 h-3.5 ${inWishlist ? "fill-current" : ""}`} />
         </button>
 
-        {/* Quick Add Slide-up bar on desktop */}
-        <div className="absolute inset-x-3 bottom-3 z-10 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+        {/* Desktop Quick Add Slide-up bar */}
+        <div className="absolute inset-x-3 bottom-3 z-10 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hidden sm:block">
           <button
             onClick={handleQuickAdd}
             disabled={isAdding}
-            className="w-full py-2.5 px-4 bg-elora-charcoal/90 hover:bg-elora-taupe text-elora-ivory text-xs uppercase tracking-luxury backdrop-blur-sm transition-colors flex items-center justify-center gap-2 rounded-sm font-medium shadow-sm"
+            className="w-full py-2.5 px-4 bg-elora-forest hover:bg-elora-forest/90 text-elora-ivory text-[11px] uppercase tracking-luxury backdrop-blur-sm transition-colors flex items-center justify-center gap-2 rounded-sm font-medium shadow-sm active:scale-[0.99]"
           >
             {isAdding ? (
               <>
@@ -138,9 +135,25 @@ export default function ProductCard({ product }: ProductCardProps) {
               </>
             ) : (
               <>
-                <ShoppingBag className="w-3.5 h-3.5" />
+                <ShoppingBag className="w-3.5 h-3.5 text-elora-sand" />
                 <span>Quick Add</span>
               </>
+            )}
+          </button>
+        </div>
+
+        {/* Mobile quick add floating button */}
+        <div className="absolute right-3 bottom-3 z-10 sm:hidden">
+          <button
+            onClick={handleQuickAdd}
+            disabled={isAdding}
+            aria-label="Quick add to bag"
+            className="p-2.5 bg-elora-forest text-elora-ivory rounded-full shadow-md active:scale-95"
+          >
+            {isAdding ? (
+              <Check className="w-4 h-4 text-elora-sand" />
+            ) : (
+              <ShoppingBag className="w-4 h-4 text-elora-sand" />
             )}
           </button>
         </div>
@@ -150,28 +163,28 @@ export default function ProductCard({ product }: ProductCardProps) {
       <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
         <div>
           {/* Category & Volume */}
-          <div className="flex items-center justify-between text-[11px] text-elora-gray uppercase tracking-wider mb-1">
+          <div className="flex items-center justify-between text-[10.5px] text-elora-gray uppercase tracking-wider mb-1 font-sans">
             <span>{product.category?.name || "Haute Formule"}</span>
             {product.volume && <span>{product.volume}</span>}
           </div>
 
           {/* Title */}
           <Link href={`/shop/${product.slug}`} className="block">
-            <h3 className="font-editorial text-lg text-elora-charcoal hover:text-elora-taupe transition-colors line-clamp-1">
+            <h3 className="font-editorial text-lg sm:text-xl text-elora-charcoal hover:text-elora-taupe transition-colors line-clamp-1 font-normal">
               {product.name}
             </h3>
           </Link>
 
           {/* Subtitle */}
           {product.subtitle && (
-            <p className="text-xs text-elora-gray line-clamp-1 mt-0.5 font-sans">
+            <p className="text-xs text-elora-gray line-clamp-1 mt-0.5 font-sans font-light">
               {product.subtitle}
             </p>
           )}
         </div>
 
         {/* Price & Rating */}
-        <div className="pt-2 border-t border-elora-border/50 flex items-center justify-between">
+        <div className="pt-2 border-t border-elora-border flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-elora-charcoal">
               {formatPrice(product.basePrice)}
@@ -186,12 +199,11 @@ export default function ProductCard({ product }: ProductCardProps) {
           {/* Rating */}
           <div className="flex items-center gap-1 text-xs text-elora-charcoal">
             <Star className="w-3 h-3 fill-elora-sand text-elora-sand" />
-            <span className="font-medium">{avgRating}</span>
-            <span className="text-elora-gray text-[11px]">({totalReviews || 12})</span>
+            <span className="font-medium text-[11px]">{avgRating}</span>
+            <span className="text-elora-gray text-[10px]">({totalReviews || 12})</span>
           </div>
         </div>
       </div>
     </div>
   );
 }
-

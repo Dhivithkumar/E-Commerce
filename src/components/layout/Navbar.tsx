@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   Search,
@@ -11,8 +12,8 @@ import {
   Menu,
   X,
   ChevronDown,
-  Globe,
   Sparkles,
+  ArrowRight,
 } from "lucide-react";
 import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/components/providers/WishlistProvider";
@@ -30,25 +31,21 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [currencyMenuOpen, setCurrencyMenuOpen] = useState(false);
-  const [collectionsDropdownOpen, setCollectionsDropdownOpen] = useState(false);
+  const [collectionsMegaOpen, setCollectionsMegaOpen] = useState(false);
   const [announcementDismissed, setAnnouncementDismissed] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 30) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 25);
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Close mobile menu on route change
   useEffect(() => {
     setMobileMenuOpen(false);
-    setCollectionsDropdownOpen(false);
+    setCollectionsMegaOpen(false);
     setCurrencyMenuOpen(false);
   }, [pathname]);
 
@@ -58,7 +55,7 @@ export default function Navbar() {
     {
       label: "Collections",
       href: "/collections",
-      hasDropdown: true,
+      hasMegaMenu: true,
     },
     { label: "Our Philosophy", href: "/philosophy" },
     { label: "Journal", href: "/journal" },
@@ -69,70 +66,72 @@ export default function Navbar() {
     },
   ];
 
-  const collections = [
+  const megaMenuCollections = [
     {
-      name: "Cleansing Elixirs",
+      name: "The Cleansing Ritual",
       slug: "cleansing",
-      desc: "Gentle oil-to-milk rituals that protect the lipid mantle",
+      tagline: "Oil-to-milk lipid balms",
+      image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=600&q=80",
     },
     {
-      name: "Serums & Actives",
+      name: "The Serum Edit",
       slug: "serums",
-      desc: "Cellular renewal peptides and high-potency bio-retinols",
+      tagline: "High-potency cellular actives",
+      image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&q=80",
     },
     {
-      name: "Hydration & Crèmes",
+      name: "Deep Hydration",
       slug: "hydration",
-      desc: "Biomimetic ceramides and 48-hour moisture shields",
+      tagline: "Biomimetic barrier crèmes",
+      image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=600&q=80",
     },
     {
-      name: "Sun Photoprotection",
+      name: "Daily Protection",
       slug: "sun-protection",
-      desc: "100% invisible mineral SPF 50+ with extremolytes",
-    },
-    {
-      name: "Curated Ritual Sets",
-      slug: "rituals",
-      desc: "Complete luxury discovery regimens housed in linen presentation boxes",
+      tagline: "Invisible 100% mineral SPF 50+",
+      image: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=600&q=80",
     },
   ];
 
   return (
     <>
       <header className="sticky top-0 z-40 w-full transition-all duration-300">
-        {/* Section 1: Announcement Bar */}
+        {/* SECTION 4.1: ANNOUNCEMENT BAR */}
         {!announcementDismissed && (
-          <div className="bg-elora-forest text-elora-ivory text-[11px] py-2 px-4 transition-all">
+          <div className="bg-elora-forest text-elora-ivory text-[11px] py-2 px-4 transition-all border-b border-elora-sand/10">
             <div className="max-w-7xl mx-auto flex items-center justify-between">
-              <div className="hidden sm:flex items-center gap-2">
-                <span className="text-elora-sand/80 font-editorial uppercase tracking-luxury">
+              <div className="hidden lg:flex items-center gap-2">
+                <span className="text-elora-sand/90 font-sans uppercase tracking-ultra text-[10px]">
                   Haute Skincare Formulation
                 </span>
               </div>
+
               <div className="flex-1 text-center font-sans tracking-wide">
                 <span>
-                  Complimentary carbon-neutral express courier on orders over{" "}
+                  Complimentary international express shipping on qualifying orders over{" "}
                   <strong className="text-elora-sand font-medium">
                     {SUPPORTED_CURRENCIES[currency]?.symbol}
                     {SUPPORTED_CURRENCIES[currency]?.freeShippingThreshold}
                   </strong>
                 </span>
               </div>
+
               <div className="flex items-center gap-3">
                 {/* Currency selector quick link */}
                 <div className="relative">
                   <button
                     onClick={() => setCurrencyMenuOpen(!currencyMenuOpen)}
-                    className="flex items-center gap-1 hover:text-elora-sand transition-colors uppercase tracking-wider text-[10px]"
+                    aria-label="Change currency"
+                    className="flex items-center gap-1.5 hover:text-elora-sand transition-colors uppercase tracking-wider text-[10px] py-0.5 px-1.5 rounded hover:bg-white/5"
                   >
                     <span>{SUPPORTED_CURRENCIES[currency]?.flag}</span>
-                    <span>{currency}</span>
-                    <ChevronDown className="w-3 h-3" />
+                    <span className="font-medium">{currency}</span>
+                    <ChevronDown className="w-3 h-3 text-elora-sand" />
                   </button>
 
                   {currencyMenuOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-48 bg-elora-surface text-elora-charcoal border border-elora-border shadow-luxury py-1 z-50 rounded-sm">
-                      <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-elora-gray border-b border-elora-border/60">
+                    <div className="absolute right-0 top-full mt-2 w-48 bg-elora-surface text-elora-charcoal border border-elora-border shadow-luxury py-1.5 z-50 rounded-sm animate-fade-in">
+                      <div className="px-3 py-1 text-[9px] uppercase tracking-ultra text-elora-gray border-b border-elora-border/60">
                         Select Destination Currency
                       </div>
                       {(Object.keys(SUPPORTED_CURRENCIES) as CurrencyCode[]).map((code) => (
@@ -143,14 +142,14 @@ export default function Navbar() {
                             setCurrencyMenuOpen(false);
                           }}
                           className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-elora-cream/50 transition-colors ${
-                            currency === code ? "font-semibold text-elora-taupe" : ""
+                            currency === code ? "font-semibold text-elora-taupe bg-elora-cream/30" : ""
                           }`}
                         >
                           <span className="flex items-center gap-2">
                             <span>{SUPPORTED_CURRENCIES[code].flag}</span>
                             <span>{SUPPORTED_CURRENCIES[code].code}</span>
                           </span>
-                          <span className="text-elora-gray">{SUPPORTED_CURRENCIES[code].symbol}</span>
+                          <span className="text-elora-gray font-mono">{SUPPORTED_CURRENCIES[code].symbol}</span>
                         </button>
                       ))}
                     </div>
@@ -160,7 +159,7 @@ export default function Navbar() {
                 <button
                   onClick={() => setAnnouncementDismissed(true)}
                   aria-label="Dismiss announcement"
-                  className="text-elora-ivory/60 hover:text-elora-ivory"
+                  className="text-elora-ivory/60 hover:text-elora-ivory p-0.5"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -169,88 +168,124 @@ export default function Navbar() {
           </div>
         )}
 
-        {/* Section 2: Main Navigation Bar */}
+        {/* SECTION 4.2: MAIN NAVIGATION BAR */}
         <nav
           className={`w-full transition-all duration-300 border-b ${
             isScrolled
-              ? "bg-elora-ivory/95 backdrop-blur-md border-elora-border/80 shadow-sm py-3.5"
-              : "bg-elora-ivory border-elora-border/50 py-5"
+              ? "bg-elora-ivory/95 backdrop-blur-md border-elora-border shadow-sm py-3.5"
+              : "bg-elora-ivory border-elora-border/70 py-4 sm:py-5"
           }`}
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-            {/* Mobile menu button */}
+            {/* Mobile menu toggle */}
             <div className="flex lg:hidden items-center">
               <button
                 onClick={() => setMobileMenuOpen(true)}
-                className="p-1.5 text-elora-charcoal hover:text-elora-taupe"
-                aria-label="Open navigation menu"
+                className="p-1.5 -ml-1.5 text-elora-charcoal hover:text-elora-taupe"
+                aria-label="Open mobile navigation"
               >
                 <Menu className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Left/Center: ÉLORA Brand Logo */}
+            {/* Left: ÉLORA Brand Identity */}
             <div className="flex items-center">
               <Link href="/" className="group flex flex-col items-center">
-                <span className="font-editorial text-2xl sm:text-3xl tracking-[0.2em] font-normal text-elora-charcoal uppercase group-hover:text-elora-taupe transition-colors">
+                <span className="font-editorial text-2xl sm:text-3xl tracking-[0.22em] font-normal text-elora-charcoal uppercase group-hover:text-elora-taupe transition-colors">
                   ÉLORA
                 </span>
-                <span className="text-[9px] tracking-[0.38em] uppercase text-elora-gray/90 -mt-1 font-sans">
-                  Haute Botanique
+                <span className="text-[8.5px] tracking-[0.38em] uppercase text-elora-gray/90 -mt-1 font-sans">
+                  The Science of Beautiful Skin
                 </span>
               </Link>
             </div>
 
             {/* Center: Desktop Navigation Links */}
-            <div className="hidden lg:flex items-center space-x-8">
+            <div className="hidden lg:flex items-center space-x-7">
               {navLinks.map((link) => {
-                if (link.hasDropdown) {
+                if (link.hasMegaMenu) {
                   return (
                     <div
                       key={link.label}
                       className="relative"
-                      onMouseEnter={() => setCollectionsDropdownOpen(true)}
-                      onMouseLeave={() => setCollectionsDropdownOpen(false)}
+                      onMouseEnter={() => setCollectionsMegaOpen(true)}
+                      onMouseLeave={() => setCollectionsMegaOpen(false)}
                     >
-                      <button
-                        className={`flex items-center gap-1 text-xs uppercase tracking-luxury hover:text-elora-taupe transition-colors py-2 ${
+                      <Link
+                        href={link.href}
+                        className={`flex items-center gap-1.5 text-[11px] uppercase tracking-luxury hover:text-elora-taupe transition-colors py-2 ${
                           pathname.startsWith(link.href)
                             ? "text-elora-taupe font-semibold"
                             : "text-elora-charcoal"
                         }`}
                       >
                         <span>{link.label}</span>
-                        <ChevronDown className="w-3 h-3 transition-transform" />
-                      </button>
+                        <ChevronDown
+                          className={`w-3 h-3 transition-transform duration-300 ${
+                            collectionsMegaOpen ? "rotate-180 text-elora-taupe" : ""
+                          }`}
+                        />
+                      </Link>
 
-                      {/* Mega Menu Dropdown */}
-                      {collectionsDropdownOpen && (
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 w-[520px] bg-elora-surface border border-elora-border shadow-luxury p-6 rounded-sm mt-1 grid grid-cols-2 gap-4 animate-fade-in z-50">
-                          <div className="col-span-2 border-b border-elora-border/60 pb-3 mb-1 flex justify-between items-center">
-                            <span className="text-[10px] uppercase tracking-ultra text-elora-gray">
-                              Archival Collections
-                            </span>
+                      {/* Editorial Mega-Menu */}
+                      {collectionsMegaOpen && (
+                        <div className="absolute top-full -left-48 w-[720px] bg-elora-surface border border-elora-border shadow-luxury p-6 rounded-sm mt-0.5 animate-fade-in z-50">
+                          <div className="flex justify-between items-center pb-4 mb-4 border-b border-elora-border">
+                            <div>
+                              <span className="text-[10px] uppercase tracking-ultra text-elora-taupe font-medium">
+                                Curated Catalog
+                              </span>
+                              <h4 className="font-editorial text-lg text-elora-charcoal">
+                                Skincare by Ritual & Formulation
+                              </h4>
+                            </div>
                             <Link
                               href="/collections"
-                              className="text-xs text-elora-taupe hover:underline"
+                              className="text-xs text-elora-taupe hover:text-elora-forest uppercase tracking-wider flex items-center gap-1 group font-medium"
                             >
-                              Explore All Collections &rarr;
+                              <span>View All Collections</span>
+                              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
                             </Link>
                           </div>
-                          {collections.map((cat) => (
+
+                          <div className="grid grid-cols-4 gap-4">
+                            {megaMenuCollections.map((col) => (
+                              <Link
+                                key={col.slug}
+                                href={`/collections/${col.slug}`}
+                                className="group/item flex flex-col"
+                              >
+                                <div className="relative aspect-[4/5] bg-elora-cream rounded-sm overflow-hidden mb-2.5 border border-elora-border">
+                                  <Image
+                                    src={col.image}
+                                    alt={col.name}
+                                    fill
+                                    className="object-cover transition-transform duration-500 group-hover/item:scale-105"
+                                  />
+                                  <div className="absolute inset-0 bg-elora-charcoal/10 group-hover/item:bg-transparent transition-colors" />
+                                </div>
+                                <h5 className="font-editorial text-sm text-elora-charcoal group-hover/item:text-elora-taupe transition-colors">
+                                  {col.name}
+                                </h5>
+                                <p className="text-[10.5px] text-elora-gray leading-tight mt-0.5">
+                                  {col.tagline}
+                                </p>
+                              </Link>
+                            ))}
+                          </div>
+
+                          <div className="mt-5 pt-3.5 border-t border-elora-border flex items-center justify-between text-xs text-elora-gray bg-elora-ivory/60 -mx-6 -mb-6 px-6 py-3 rounded-b-sm">
+                            <span className="flex items-center gap-1.5 text-elora-forest">
+                              <Sparkles className="w-3.5 h-3.5 text-elora-taupe" />
+                              <strong className="font-medium text-elora-charcoal">Need guidance?</strong> Take our 2-minute diagnostic consultation.
+                            </span>
                             <Link
-                              key={cat.slug}
-                              href={`/collections/${cat.slug}`}
-                              className="p-2.5 rounded hover:bg-elora-cream/40 transition-colors group/item"
+                              href="/skin-discovery"
+                              className="text-elora-forest font-medium underline uppercase tracking-wider text-[10px] hover:text-elora-taupe"
                             >
-                              <h4 className="font-editorial text-sm font-medium text-elora-charcoal group-hover/item:text-elora-taupe">
-                                {cat.name}
-                              </h4>
-                              <p className="text-[11px] text-elora-gray mt-0.5 line-clamp-2">
-                                {cat.desc}
-                              </p>
+                              Start Skin Discovery &rarr;
                             </Link>
-                          ))}
+                          </div>
                         </div>
                       )}
                     </div>
@@ -261,71 +296,64 @@ export default function Navbar() {
                   <Link
                     key={link.label}
                     href={link.href}
-                    className={`relative text-xs uppercase tracking-luxury transition-colors py-2 ${
+                    className={`text-[11px] uppercase tracking-luxury hover:text-elora-taupe transition-colors py-2 flex items-center gap-1.5 ${
                       link.highlight
-                        ? "text-elora-forest font-semibold flex items-center gap-1.5"
+                        ? "text-elora-forest font-medium px-3 py-1 bg-elora-sand/20 rounded-full border border-elora-sand/40 hover:bg-elora-sand/30"
                         : pathname === link.href
                         ? "text-elora-taupe font-semibold"
-                        : "text-elora-charcoal hover:text-elora-taupe"
+                        : "text-elora-charcoal"
                     }`}
                   >
-                    {link.highlight && (
-                      <Sparkles className="w-3.5 h-3.5 text-elora-taupe" />
-                    )}
+                    {link.highlight && <Sparkles className="w-3 h-3 text-elora-taupe" />}
                     <span>{link.label}</span>
-                    {link.highlight && (
-                      <span className="bg-elora-forest text-elora-sand text-[9px] px-1.5 py-0.5 rounded-full font-sans tracking-normal ml-0.5">
-                        AI
-                      </span>
-                    )}
                   </Link>
                 );
               })}
             </div>
 
-            {/* Right: Actions */}
-            <div className="flex items-center space-x-3 sm:space-x-5">
+            {/* Right: Actions (Search, Account, Wishlist, Bag) */}
+            <div className="flex items-center space-x-3 sm:space-x-4">
               {/* Search Icon */}
               <button
                 onClick={() => setSearchOpen(true)}
                 className="p-1.5 text-elora-charcoal hover:text-elora-taupe transition-colors"
-                aria-label="Search formulations"
+                aria-label="Search ÉLORA products"
               >
-                <Search className="w-4 h-4 sm:w-5 sm:h-5" />
+                <Search className="w-4 h-4" />
               </button>
 
-              {/* Account */}
+              {/* Customer Account */}
               <Link
                 href="/account"
-                className="p-1.5 text-elora-charcoal hover:text-elora-taupe transition-colors"
+                className="p-1.5 text-elora-charcoal hover:text-elora-taupe transition-colors hidden sm:inline-block"
                 aria-label="Customer Account"
               >
-                <User className="w-4 h-4 sm:w-5 sm:h-5" />
+                <User className="w-4 h-4" />
               </Link>
 
               {/* Wishlist */}
               <Link
                 href="/wishlist"
-                className="relative p-1.5 text-elora-charcoal hover:text-elora-taupe transition-colors hidden sm:block"
+                className="relative p-1.5 text-elora-charcoal hover:text-elora-taupe transition-colors"
                 aria-label="Wishlist"
               >
-                <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
+                <Heart className="w-4 h-4" />
                 {wishlistCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-elora-taupe text-white text-[9px] font-semibold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-elora-taupe text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-sans font-medium">
                     {wishlistCount}
                   </span>
                 )}
               </Link>
 
-              {/* Shopping Bag */}
+              {/* Shopping Bag with live count badge */}
               <button
                 onClick={openCart}
                 className="relative p-1.5 text-elora-charcoal hover:text-elora-taupe transition-colors"
                 aria-label={`Shopping Bag (${itemCount} items)`}
               >
-                <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
+                <ShoppingBag className="w-4 h-4" />
                 {itemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-elora-charcoal text-elora-ivory text-[9px] font-semibold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-elora-forest text-elora-sand text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-sans font-bold shadow-sm">
                     {itemCount}
                   </span>
                 )}
@@ -335,74 +363,136 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {/* Mobile Drawer Navigation */}
+      {/* Search Overlay */}
+      <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+
+      {/* Mobile Navigation Drawer */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
+            className="fixed inset-0 bg-elora-charcoal/50 backdrop-blur-sm"
             onClick={() => setMobileMenuOpen(false)}
-            className="fixed inset-0 bg-elora-charcoal/40 backdrop-blur-sm"
           />
-          <div className="fixed inset-y-0 left-0 w-4/5 max-w-sm bg-elora-ivory shadow-drawer border-r border-elora-border p-6 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between pb-6 border-b border-elora-border">
-                <span className="font-editorial text-2xl tracking-widest text-elora-charcoal">
-                  ÉLORA
-                </span>
-                <button
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="p-1 text-elora-charcoal"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="py-6 space-y-4">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.label}
-                    href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block text-sm uppercase tracking-luxury text-elora-charcoal hover:text-elora-taupe font-medium py-1.5"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-
-              <div className="border-t border-elora-border pt-6 space-y-3 text-xs">
-                <Link
-                  href="/wishlist"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between py-1 text-elora-gray"
-                >
-                  <span>Your Wishlist</span>
-                  <span className="font-semibold text-elora-charcoal">{wishlistCount}</span>
-                </Link>
-                <Link
-                  href="/admin"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between py-1 text-elora-gray"
-                >
-                  <span>Atelier Management Portal</span>
-                  <span className="text-[10px] uppercase text-elora-taupe tracking-wider">
-                    Staff
-                  </span>
-                </Link>
-              </div>
+          <div className="fixed inset-y-0 left-0 w-full max-w-xs bg-elora-ivory shadow-drawer flex flex-col border-r border-elora-border p-6 animate-fade-in">
+            <div className="flex items-center justify-between pb-5 border-b border-elora-border">
+              <Link
+                href="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="font-editorial text-2xl tracking-widest uppercase text-elora-charcoal"
+              >
+                ÉLORA
+              </Link>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-1.5 text-elora-charcoal hover:text-elora-taupe"
+                aria-label="Close menu"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
-            <div className="pt-6 border-t border-elora-border text-center text-xs text-elora-gray">
-              <p className="font-editorial text-sm text-elora-charcoal italic">
-                &ldquo;The Science of Beautiful Skin.&rdquo;
-              </p>
+            <div className="flex-1 py-6 space-y-4 overflow-y-auto">
+              <Link
+                href="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-sm uppercase tracking-luxury text-elora-charcoal py-2 hover:text-elora-taupe"
+              >
+                Home
+              </Link>
+              <Link
+                href="/shop"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-sm uppercase tracking-luxury text-elora-charcoal py-2 hover:text-elora-taupe"
+              >
+                Shop All
+              </Link>
+              <div className="py-2">
+                <span className="block text-[11px] uppercase tracking-ultra text-elora-gray mb-2">
+                  Collections
+                </span>
+                <div className="pl-3 space-y-2.5 border-l border-elora-border">
+                  <Link
+                    href="/collections/cleansing"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block text-xs text-elora-charcoal hover:text-elora-taupe"
+                  >
+                    The Cleansing Ritual
+                  </Link>
+                  <Link
+                    href="/collections/serums"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block text-xs text-elora-charcoal hover:text-elora-taupe"
+                  >
+                    The Serum Edit
+                  </Link>
+                  <Link
+                    href="/collections/hydration"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block text-xs text-elora-charcoal hover:text-elora-taupe"
+                  >
+                    Deep Hydration
+                  </Link>
+                  <Link
+                    href="/collections/sun-protection"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block text-xs text-elora-charcoal hover:text-elora-taupe"
+                  >
+                    Daily Protection
+                  </Link>
+                  <Link
+                    href="/collections"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block text-xs text-elora-taupe font-medium"
+                  >
+                    View All Collections &rarr;
+                  </Link>
+                </div>
+              </div>
+              <Link
+                href="/philosophy"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-sm uppercase tracking-luxury text-elora-charcoal py-2 hover:text-elora-taupe"
+              >
+                Our Philosophy
+              </Link>
+              <Link
+                href="/journal"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-sm uppercase tracking-luxury text-elora-charcoal py-2 hover:text-elora-taupe"
+              >
+                Journal
+              </Link>
+              <Link
+                href="/skin-discovery"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 text-sm uppercase tracking-luxury text-elora-forest font-semibold py-2 px-3 bg-elora-sand/20 rounded border border-elora-sand/40"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-elora-taupe" />
+                <span>Skin Discovery Diagnostic</span>
+              </Link>
+            </div>
+
+            <div className="pt-6 border-t border-elora-border space-y-3">
+              <Link
+                href="/account"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 text-xs uppercase tracking-luxury text-elora-charcoal hover:text-elora-taupe"
+              >
+                <User className="w-4 h-4" />
+                <span>Customer Account</span>
+              </Link>
+              <Link
+                href="/wishlist"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 text-xs uppercase tracking-luxury text-elora-charcoal hover:text-elora-taupe"
+              >
+                <Heart className="w-4 h-4" />
+                <span>Saved Wishlist ({wishlistCount})</span>
+              </Link>
             </div>
           </div>
         </div>
       )}
-
-      {/* Global Search Overlay */}
-      <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }
-

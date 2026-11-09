@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: elora-luxury-skincare
+    runtime: node
+    plan: free
+    buildCommand: pnpm install && pnpm run build
+    startCommand: pnpm start
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: NEXT_PUBLIC_STORE_NAME
+        value: "ÉLORA"
+      - key: NEXT_PUBLIC_STORE_TAGLINE
+        value: "The Science of Beautiful Skin"
+      - key: NEXT_PUBLIC_DEFAULT_CURRENCY
+        value: "USD"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: elora-postgres
+          property: connectionString
+
+databases:
+  - name: elora-postgres
+    plan: free
+    databaseName: elora
+    user: elora_user
+

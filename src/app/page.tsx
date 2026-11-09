@@ -10,6 +10,16 @@ import { Button } from "@/components/ui/Button";
 
 export const revalidate = 60; // ISR cache revalidation
 
+// Curated high-resolution imagery for scientific actives
+const INGREDIENT_IMAGES: Record<string, string> = {
+  "triple-hyaluronic-acid": "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=800&q=85",
+  "niacinamide-usp": "https://images.unsplash.com/photo-1512290900672-1f55b9e03a93?auto=format&fit=crop&w=800&q=85",
+  "biomimetic-ceramides": "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=800&q=85",
+  "ectoin-pure": "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=800&q=85",
+  "thd-ascorbate": "https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?auto=format&fit=crop&w=800&q=85",
+  "bakuchiol-pure": "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=85",
+};
+
 export default async function HomePage() {
   // Fetch real bestsellers and featured products from the database
   const bestsellers = await prisma.product.findMany({
@@ -189,13 +199,13 @@ export default async function HomePage() {
               <span className="text-xs uppercase tracking-ultra text-elora-taupe font-medium">
                 Targeted Care
               </span>
-              <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal mt-1">
+              <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal mt-1 font-normal">
                 Curated Collections
               </h2>
             </div>
             <Link
               href="/collections"
-              className="mt-4 md:mt-0 text-xs uppercase tracking-luxury text-elora-charcoal hover:text-elora-taupe font-medium flex items-center gap-2 group"
+              className="mt-4 md:mt-0 text-xs uppercase tracking-luxury text-elora-charcoal hover:text-elora-taupe font-medium flex items-center gap-2 group font-sans"
             >
               <span>Explore All Collections</span>
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -224,10 +234,10 @@ export default async function HomePage() {
                   <span className="text-[10px] uppercase tracking-ultra text-elora-sand font-medium">
                     Collection
                   </span>
-                  <h3 className="font-editorial text-2xl text-elora-ivory group-hover:text-elora-sand transition-colors">
+                  <h3 className="font-editorial text-2xl text-elora-ivory group-hover:text-elora-sand transition-colors font-normal">
                     {cat.name}
                   </h3>
-                  <p className="text-xs text-elora-sand/80 line-clamp-2 font-sans opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <p className="text-xs text-elora-sand/80 line-clamp-2 font-sans opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-light">
                     {cat.description}
                   </p>
                 </div>
@@ -318,7 +328,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* SECTION 4.8: INGREDIENT STORYTELLING */}
+      {/* SECTION 4.8: INGREDIENT STORYTELLING WITH REAL PHOTOGRAPHY */}
       <section className="py-24 bg-elora-ivory border-b border-elora-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
@@ -328,31 +338,49 @@ export default async function HomePage() {
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {ingredients.map((ing) => (
-              <div
-                key={ing.id}
-                className="p-6 bg-elora-surface border border-elora-border hover:border-elora-taupe/50 transition-all rounded-sm flex flex-col justify-between space-y-4 shadow-sm"
-              >
-                <div>
-                  <div className="w-10 h-10 rounded-full bg-elora-cream flex items-center justify-center text-elora-taupe mb-4 border border-elora-border">
-                    <Droplets className="w-5 h-5" />
+            {ingredients.map((ing) => {
+              const ingImage =
+                INGREDIENT_IMAGES[ing.slug] ||
+                "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=800&q=85";
+              return (
+                <div
+                  key={ing.id}
+                  className="bg-elora-surface border border-elora-border hover:border-elora-taupe/50 transition-all rounded-sm flex flex-col justify-between overflow-hidden shadow-sm group hover:shadow-luxury"
+                >
+                  {/* Ingredient Macro Photography Banner */}
+                  <div className="relative aspect-[16/10] bg-elora-cream overflow-hidden">
+                    <Image
+                      src={ingImage}
+                      alt={ing.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-700"
+                      sizes="(max-width: 768px) 100vw, 25vw"
+                    />
+                    <div className="absolute top-2.5 right-2.5 px-2 py-0.5 bg-elora-surface/90 backdrop-blur-sm text-[9.5px] uppercase tracking-wider text-elora-forest font-semibold rounded-sm">
+                      {ing.safetyRating}
+                    </div>
                   </div>
-                  <h3 className="font-editorial text-lg text-elora-charcoal">
-                    {ing.name}
-                  </h3>
-                  <p className="text-xs text-elora-taupe font-medium mt-1">
-                    {ing.benefit}
-                  </p>
-                  <p className="text-xs text-elora-gray mt-2.5 leading-relaxed font-sans font-light">
-                    {ing.description}
-                  </p>
+
+                  {/* Details */}
+                  <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                    <div>
+                      <h3 className="font-editorial text-lg text-elora-charcoal font-medium">
+                        {ing.name}
+                      </h3>
+                      <p className="text-xs text-elora-taupe font-medium mt-0.5">{ing.benefit}</p>
+                      <p className="text-xs text-elora-gray mt-2 leading-relaxed font-sans font-light">
+                        {ing.description}
+                      </p>
+                    </div>
+
+                    <div className="pt-3 border-t border-elora-border text-[10px] uppercase tracking-wider text-elora-forest font-medium flex items-center gap-1.5">
+                      <Shield className="w-3.5 h-3.5 text-elora-taupe" />
+                      <span>Certified Physiological Tolerance</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="pt-3 border-t border-elora-border text-[10px] uppercase tracking-wider text-elora-forest font-medium flex items-center gap-1.5">
-                  <Shield className="w-3.5 h-3.5 text-elora-taupe" />
-                  <span>{ing.safetyRating}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="mt-12 text-center">
@@ -389,7 +417,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* SECTION 4.10: CUSTOMER TESTIMONIALS */}
+      {/* SECTION 4.10: CUSTOMER TESTIMONIALS WITH REAL PORTRAITS */}
       <section className="py-24 bg-elora-cream/30 border-b border-elora-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-14">
@@ -402,7 +430,7 @@ export default async function HomePage() {
                   Sample Demonstration Reviews
                 </span>
               </div>
-              <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal">
+              <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal font-normal">
                 Reflections of Radiance
               </h2>
             </div>
@@ -424,15 +452,25 @@ export default async function HomePage() {
                   <Star key={i} className="w-3.5 h-3.5 fill-current" />
                 ))}
               </div>
-              <h4 className="font-editorial text-xl text-elora-charcoal">
+              <h4 className="font-editorial text-xl text-elora-charcoal font-normal">
                 &ldquo;My fragile moisture barrier has never felt this cushioned.&rdquo;
               </h4>
               <p className="text-xs text-elora-gray leading-relaxed font-sans font-light">
                 After enduring years of over-exfoliation, the Barrier Restorative Crème healed my chronic facial redness within ten days. The texture is sheer alchemy—rich without being suffocating.
               </p>
-              <div className="pt-4 border-t border-elora-border text-xs">
-                <p className="font-medium text-elora-charcoal">Sophia Vane</p>
-                <p className="text-[11px] text-elora-gray">Verified Purchaser • New York, NY</p>
+              <div className="pt-4 border-t border-elora-border flex items-center gap-3">
+                <div className="relative w-10 h-10 rounded-full overflow-hidden border border-elora-border flex-shrink-0">
+                  <Image
+                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+                    alt="Sophia Vane"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="text-xs">
+                  <p className="font-medium text-elora-charcoal">Sophia Vane</p>
+                  <p className="text-[11px] text-elora-gray">Verified Purchaser • New York, NY</p>
+                </div>
               </div>
             </div>
 
@@ -442,15 +480,25 @@ export default async function HomePage() {
                   <Star key={i} className="w-3.5 h-3.5 fill-current" />
                 ))}
               </div>
-              <h4 className="font-editorial text-xl text-elora-charcoal">
+              <h4 className="font-editorial text-xl text-elora-charcoal font-normal">
                 &ldquo;A clean alternative to retinol that actually performs.&rdquo;
               </h4>
               <p className="text-xs text-elora-gray leading-relaxed font-sans font-light">
                 The Overnight Bio-Retinol Nectar with bakuchiol delivered visible pore refinement and smoothing without any peeling or flaking. It has become non-negotiable in my evening protocol.
               </p>
-              <div className="pt-4 border-t border-elora-border text-xs">
-                <p className="font-medium text-elora-charcoal">Eleanor Berkeley</p>
-                <p className="text-[11px] text-elora-gray">Verified Purchaser • London, UK</p>
+              <div className="pt-4 border-t border-elora-border flex items-center gap-3">
+                <div className="relative w-10 h-10 rounded-full overflow-hidden border border-elora-border flex-shrink-0">
+                  <Image
+                    src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80"
+                    alt="Eleanor Berkeley"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="text-xs">
+                  <p className="font-medium text-elora-charcoal">Eleanor Berkeley</p>
+                  <p className="text-[11px] text-elora-gray">Verified Purchaser • London, UK</p>
+                </div>
               </div>
             </div>
 
@@ -460,15 +508,25 @@ export default async function HomePage() {
                   <Star key={i} className="w-3.5 h-3.5 fill-current" />
                 ))}
               </div>
-              <h4 className="font-editorial text-xl text-elora-charcoal">
+              <h4 className="font-editorial text-xl text-elora-charcoal font-normal">
                 &ldquo;Invisible SPF that leaves zero chalky sheen.&rdquo;
               </h4>
               <p className="text-xs text-elora-gray leading-relaxed font-sans font-light">
                 Mineral sunscreens typically pill or leave a ghostly cast under makeup. The Invisible Silk Mineral Fluid absorbs like water and leaves a velvet, lit-from-within finish all day.
               </p>
-              <div className="pt-4 border-t border-elora-border text-xs">
-                <p className="font-medium text-elora-charcoal">Nour Al-Sabah</p>
-                <p className="text-[11px] text-elora-gray">Verified Purchaser • Dubai, UAE</p>
+              <div className="pt-4 border-t border-elora-border flex items-center gap-3">
+                <div className="relative w-10 h-10 rounded-full overflow-hidden border border-elora-border flex-shrink-0">
+                  <Image
+                    src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80"
+                    alt="Nour Al-Sabah"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="text-xs">
+                  <p className="font-medium text-elora-charcoal">Nour Al-Sabah</p>
+                  <p className="text-[11px] text-elora-gray">Verified Purchaser • Dubai, UAE</p>
+                </div>
               </div>
             </div>
           </div>
@@ -476,20 +534,20 @@ export default async function HomePage() {
       </section>
 
       {/* SECTION 4.11: JOURNAL */}
-      <section className="py-24 bg-elora-ivory">
+      <section className="py-24 bg-elora-ivory border-b border-elora-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-14">
             <div>
               <span className="text-xs uppercase tracking-ultra text-elora-taupe font-medium">
                 The Scientific Journal
               </span>
-              <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal mt-1">
+              <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal mt-1 font-normal">
                 Notes on Dermal Health
               </h2>
             </div>
             <Link
               href="/journal"
-              className="mt-4 md:mt-0 text-xs uppercase tracking-luxury text-elora-charcoal hover:text-elora-taupe font-medium flex items-center gap-2 group"
+              className="mt-4 md:mt-0 text-xs uppercase tracking-luxury text-elora-charcoal hover:text-elora-taupe font-medium flex items-center gap-2 group font-sans"
             >
               <span>View All Dispatches</span>
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -517,7 +575,7 @@ export default async function HomePage() {
                       <Clock className="w-3 h-3 text-elora-taupe" />
                       <span>{art.readTime}</span>
                     </div>
-                    <h3 className="font-editorial text-xl text-elora-charcoal group-hover:text-elora-taupe transition-colors line-clamp-2">
+                    <h3 className="font-editorial text-xl text-elora-charcoal group-hover:text-elora-taupe transition-colors line-clamp-2 font-normal">
                       {art.title}
                     </h3>
                     <p className="text-xs text-elora-gray line-clamp-2 mt-2 leading-relaxed font-light">
@@ -530,6 +588,75 @@ export default async function HomePage() {
                   </div>
                 </div>
               </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 4.12: THE ATELIER VISUAL GALLERY / SOCIAL ARCHIVE */}
+      <section className="py-24 bg-elora-cream/40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-xl mx-auto mb-14 space-y-2">
+            <span className="text-xs uppercase tracking-ultra text-elora-taupe font-medium">
+              The Daily Ceremony
+            </span>
+            <h2 className="font-editorial text-3xl sm:text-4xl text-elora-charcoal font-normal">
+              Follow @elora.luxury
+            </h2>
+            <p className="text-xs text-elora-gray font-sans font-light">
+              Visual glimpses into the compounding laboratory, mindful morning rituals, and timeless dermal sanctuaries.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+            {[
+              {
+                url: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=85",
+                title: "Sanctuary Vanity Ritual",
+                desc: "Morning preparation in polished marble space",
+              },
+              {
+                url: "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=600&q=85",
+                title: "Cellular Nectar Macro",
+                desc: "Gold lipid droplet with active botanical enzymes",
+              },
+              {
+                url: "https://images.unsplash.com/photo-1512290900672-1f55b9e03a93?auto=format&fit=crop&w=600&q=85",
+                title: "Laboratory Distillation",
+                desc: "Sub-ambient cold-fractionation apparatus",
+              },
+              {
+                url: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=600&q=85",
+                title: "Botanical Extracts",
+                desc: "Alpine camellia and sea-buckthorn flora",
+              },
+              {
+                url: "https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=600&q=85",
+                title: "The Skincare Ceremony",
+                desc: "Gentle upward micro-effleurage application",
+              },
+              {
+                url: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=600&q=85",
+                title: "Amber Glass Preservation",
+                desc: "UV-photoprotective apothecary flacons",
+              },
+            ].map((photo, i) => (
+              <div
+                key={i}
+                className="group relative aspect-square bg-elora-cream rounded-sm overflow-hidden border border-elora-border shadow-sm hover:shadow-luxury transition-all duration-300"
+              >
+                <Image
+                  src={photo.url}
+                  alt={photo.title}
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                  className="object-cover group-hover:scale-110 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-elora-forest/75 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3 text-elora-ivory">
+                  <p className="font-editorial text-sm font-medium text-elora-sand">{photo.title}</p>
+                  <p className="text-[10px] text-elora-ivory/80 line-clamp-1 font-light">{photo.desc}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>

@@ -55,10 +55,30 @@ const CONCERNS = [
 ];
 
 const ENVIRONMENTS = [
-  { id: "urban", title: "Urban City • High Airborne Pollution & Free Radicals" },
-  { id: "dry-climate", title: "Arid / Desert • High HVAC & Low Humidity" },
-  { id: "temperate", title: "Temperate • Variable Seasonal Transitions" },
-  { id: "humid", title: "Tropical • High Humidity & Intense UV Index" },
+  {
+    id: "urban",
+    title: "Urban City",
+    desc: "Airborne pollution, particulate dust & reactive free radicals",
+    image: "https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    id: "dry-climate",
+    title: "Arid / Desert",
+    desc: "Intense indoor HVAC cooling & severe moisture evaporation",
+    image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    id: "temperate",
+    title: "Temperate Coastal",
+    desc: "Variable four-season transitions & fluctuating humidity levels",
+    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    id: "humid",
+    title: "Tropical / Equatorial",
+    desc: "High atmospheric humidity, perspiration & intense solar radiation",
+    image: "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=400&q=80",
+  },
 ];
 
 const PREFERENCES = [
@@ -145,36 +165,58 @@ export default function SkinDiscoveryPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="bg-elora-surface border border-elora-border p-8 sm:p-14 rounded-sm shadow-luxury text-center space-y-6"
+            className="bg-elora-surface border border-elora-border rounded-sm shadow-luxury overflow-hidden"
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-elora-sand/20 border border-elora-sand/40 rounded-full text-elora-forest text-xs tracking-ultra uppercase font-sans font-medium">
-              <Sparkles className="w-3.5 h-3.5 text-elora-taupe" />
-              <span>Biomimetic Skincare Consultation</span>
+            {/* Visual Hero Banner */}
+            <div className="relative aspect-[21/9] sm:aspect-[2.8/1] bg-elora-forest text-elora-ivory overflow-hidden">
+              <Image
+                src="https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=1600&q=85"
+                alt="ÉLORA Diagnostic Consultation"
+                fill
+                priority
+                className="object-cover opacity-65"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-elora-forest via-elora-forest/40 to-transparent" />
+              <div className="absolute bottom-5 left-6 sm:bottom-8 sm:left-12 z-10 space-y-1">
+                <span className="text-[10px] uppercase tracking-ultra text-elora-sand font-medium block">
+                  Algorithmic Formulation Diagnostic
+                </span>
+                <p className="font-editorial text-2xl sm:text-4xl text-elora-ivory font-normal">
+                  The ÉLORA Consultation Suite
+                </p>
+              </div>
             </div>
 
-            <h1 className="font-editorial text-4xl sm:text-6xl text-elora-charcoal font-normal leading-tight">
-              Personalized Skincare Consultation
-            </h1>
+            <div className="p-8 sm:p-14 text-center space-y-6">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-elora-sand/20 border border-elora-sand/40 rounded-full text-elora-forest text-xs tracking-ultra uppercase font-sans font-medium">
+                <Sparkles className="w-3.5 h-3.5 text-elora-taupe" />
+                <span>Biomimetic Skincare Consultation</span>
+              </div>
 
-            <p className="text-xs sm:text-sm text-elora-gray max-w-xl mx-auto leading-relaxed font-sans font-light">
-              Our diagnostic engine evaluates your epidermal barrier integrity, lifestyle stressors, and moisture retention tiers. Through algorithmic compatibility matching, we formulate a harmonious ritual unique to your complexion.
-            </p>
+              <h1 className="font-editorial text-4xl sm:text-5xl text-elora-charcoal font-normal leading-tight">
+                Personalized Skincare Consultation
+              </h1>
 
-            <div className="pt-4 flex justify-center">
-              <Button
-                variant="forest"
-                size="lg"
-                onClick={() => setStep(1)}
-                className="shadow-luxury"
-              >
-                <span>Initiate Consultation (2 Mins)</span>
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
+              <p className="text-xs sm:text-sm text-elora-gray max-w-xl mx-auto leading-relaxed font-sans font-light">
+                Our diagnostic engine evaluates your epidermal barrier integrity, lifestyle stressors, and moisture retention tiers. Through algorithmic compatibility matching, we formulate a harmonious ritual unique to your complexion.
+              </p>
+
+              <div className="pt-4 flex justify-center">
+                <Button
+                  variant="forest"
+                  size="lg"
+                  onClick={() => setStep(1)}
+                  className="shadow-luxury"
+                >
+                  <span>Initiate Consultation (2 Mins)</span>
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+
+              <p className="text-[10.5px] text-elora-gray/80 pt-4 border-t border-elora-border max-w-md mx-auto font-light">
+                Consultation notice: This experience provides cosmetic formulation recommendations for daily skincare ceremonies and does not constitute clinical medical diagnosis.
+              </p>
             </div>
-
-            <p className="text-[10.5px] text-elora-gray/80 pt-4 border-t border-elora-border max-w-md mx-auto font-light">
-              Consultation notice: This experience provides cosmetic formulation recommendations for daily skincare ceremonies and does not constitute clinical medical diagnosis.
-            </p>
           </motion.div>
         )}
 
@@ -285,18 +327,38 @@ export default function SkinDiscoveryPage() {
                   </p>
                 </div>
 
-                <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {ENVIRONMENTS.map((env) => (
                     <button
                       key={env.id}
                       onClick={() => setEnvironment(env.id)}
-                      className={`w-full p-4 text-left border rounded-sm transition-all text-xs font-medium ${
+                      className={`text-left border rounded-sm overflow-hidden transition-all flex flex-col group ${
                         environment === env.id
-                          ? "border-elora-charcoal bg-elora-cream/40 ring-1 ring-elora-charcoal text-elora-charcoal"
-                          : "border-elora-border hover:border-elora-taupe/40 bg-elora-surface text-elora-gray"
+                          ? "border-elora-charcoal bg-elora-cream/40 ring-1 ring-elora-charcoal"
+                          : "border-elora-border hover:border-elora-taupe/40 bg-elora-surface"
                       }`}
                     >
-                      {env.title}
+                      <div className="relative aspect-[16/9] w-full bg-elora-cream overflow-hidden">
+                        <Image
+                          src={env.image}
+                          alt={env.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        {environment === env.id && (
+                          <div className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-elora-forest text-elora-sand flex items-center justify-center shadow-md">
+                            <Check className="w-3.5 h-3.5" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-4 space-y-1">
+                        <h3 className="font-editorial text-lg text-elora-charcoal font-medium">
+                          {env.title}
+                        </h3>
+                        <p className="text-[11px] text-elora-gray font-sans font-light leading-snug">
+                          {env.desc}
+                        </p>
+                      </div>
                     </button>
                   ))}
                 </div>

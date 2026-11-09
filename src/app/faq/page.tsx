@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Sparkles, HelpCircle, ArrowRight } from "lucide-react";
@@ -33,19 +34,32 @@ export default function FAQPage() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <div className="bg-elora-ivory min-h-screen py-16">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-        <div>
-          <span className="text-xs uppercase tracking-ultra text-elora-taupe font-medium">
-            House Knowledge
+    <div className="bg-elora-ivory min-h-screen">
+      {/* Editorial Hero */}
+      <section className="relative py-20 sm:py-28 bg-elora-forest text-elora-ivory overflow-hidden border-b border-elora-sand/20">
+        <div className="absolute inset-0 opacity-20">
+          <Image
+            src="https://images.unsplash.com/photo-1512290900672-1f55b9e03a93?auto=format&fit=crop&w=1800&q=85"
+            alt="ÉLORA Formulation Science & House Knowledge"
+            fill
+            priority
+            className="object-cover"
+          />
+        </div>
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-4">
+          <span className="text-xs uppercase tracking-ultra text-elora-sand font-medium">
+            House Knowledge Archive
           </span>
-          <h1 className="font-editorial text-4xl sm:text-5xl text-elora-charcoal mt-1 font-normal">
+          <h1 className="font-editorial text-4xl sm:text-6xl text-elora-ivory font-normal leading-tight">
             Frequently Answered Inquiries
           </h1>
-          <p className="text-xs sm:text-sm text-elora-gray mt-2 leading-relaxed font-sans font-light">
-            Everything you need to know about our scientific formulations, international dispatch, and personalized diagnostic ceremonies.
+          <p className="text-xs sm:text-sm text-elora-sand/90 max-w-xl mx-auto font-sans leading-relaxed font-light">
+            Everything you need to know about our physiological lipid formulations, international dispatch, and personalized diagnostic ceremonies.
           </p>
         </div>
+      </section>
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-10">
 
         <div className="space-y-4">
           {FAQS.map((faq, idx) => (

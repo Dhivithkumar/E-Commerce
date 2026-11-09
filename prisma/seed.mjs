@@ -109,7 +109,7 @@ async function main() {
       name: "Sun Protection",
       slug: "sun-protection",
       description: "Weightless mineral photoprotection infused with antioxidant shields against photo-aging.",
-      image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=1000&q=85",
+      image: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=1000&q=85",
       order: 4,
     },
   });
@@ -313,6 +313,18 @@ async function main() {
           isPrimary: false,
           order: 2,
         },
+        {
+          url: "https://images.unsplash.com/photo-1512290900672-1f55b9e03a93?auto=format&fit=crop&w=1200&q=85",
+          alt: "Silky transforming oil-to-milk emulsification texture",
+          isPrimary: false,
+          order: 3,
+        },
+        {
+          url: "https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=1200&q=85",
+          alt: "Morning vanity cleansing ceremony with natural light",
+          isPrimary: false,
+          order: 4,
+        },
       ],
       variants: [
         { title: "Standard Pump (150 ml)", sku: "ELO-CLN-03-150", price: 78.0, compareAtPrice: null, stock: 80 },
@@ -338,16 +350,28 @@ async function main() {
       badge: "Best Seller",
       images: [
         {
-          url: "https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=1200&q=85",
+          url: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=1200&q=85",
           alt: "ÉLORA Invisible Silk Mineral Fluid bottle bathed in warm natural sunlight",
           isPrimary: true,
           order: 1,
         },
         {
-          url: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=1200&q=85",
-          alt: "Weightless mineral lotion droplet on fingertip",
+          url: "https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=1200&q=85",
+          alt: "Weightless mineral lotion fluid droplet texture on fingertip",
           isPrimary: false,
           order: 2,
+        },
+        {
+          url: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=1200&q=85",
+          alt: "Refined minimalist packaging and precision pump dispenser",
+          isPrimary: false,
+          order: 3,
+        },
+        {
+          url: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=1200&q=85",
+          alt: "Golden hour photoprotection application in natural sunlight",
+          isPrimary: false,
+          order: 4,
         },
       ],
       variants: [
@@ -379,6 +403,18 @@ async function main() {
           isPrimary: true,
           order: 1,
         },
+        {
+          url: "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=1200&q=85",
+          alt: "Golden botanical bakuchiol oil droplet on warm stone",
+          isPrimary: false,
+          order: 2,
+        },
+        {
+          url: "https://images.unsplash.com/photo-1608248597359-009949d21c3b?auto=format&fit=crop&w=1200&q=85",
+          alt: "Close up detail of amber glass flacon and golden foil embossing",
+          isPrimary: false,
+          order: 3,
+        },
       ],
       variants: [
         { title: "Flacon Dropper (30 ml)", sku: "ELO-RET-05-30", price: 120.0, compareAtPrice: null, stock: 40 },
@@ -408,6 +444,18 @@ async function main() {
           alt: "ÉLORA Signature Ritual luxury boxed gift presentation on neutral linen",
           isPrimary: true,
           order: 1,
+        },
+        {
+          url: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=1200&q=85",
+          alt: "Complete 4-vessel regimen arranged on travertine bathroom vanity",
+          isPrimary: false,
+          order: 2,
+        },
+        {
+          url: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=1200&q=85",
+          alt: "Luxury presentation gift unboxing experience with bespoke spatula",
+          isPrimary: false,
+          order: 3,
         },
       ],
       variants: [

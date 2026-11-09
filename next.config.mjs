@@ -18,8 +18,10 @@ const nextConfig = {
   },
   experimental: {
     serverComponentsExternalPackages: ["@prisma/client", "bcryptjs"],
+    outputFileTracingIncludes: {
+      "/**": ["./prisma/dev.db"],
+    },
   },
 };
 
 export default nextConfig;
-

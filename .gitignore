@@ -10,8 +10,8 @@
 /build
 
 # database
-*.db
 *.db-journal
+!prisma/dev.db
 
 # misc
 .DS_Store

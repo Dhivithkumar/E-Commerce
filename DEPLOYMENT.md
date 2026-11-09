@@ -1,150 +1,80 @@
-# 🚀 ÉLORA — Production Deployment Guide (Vercel & Render)
+# 🚀 ÉLORA — Zero-Database Production Deployment Guide (Vercel & Render)
 
-This document provides step-by-step instructions for deploying the **ÉLORA Luxury Beauty & E-Commerce Platform** to **Vercel** and **Render**.
+**You do NOT need to set up, provision, or connect any external database!**
 
----
-
-## 🏗️ Architecture Overview
-
-- **Framework:** Next.js 14 App Router (React 18, TypeScript, Tailwind CSS)
-- **Database Layer:** Prisma ORM 5 with unified dual-engine compatibility (`scripts/db-prep.mjs`)
-  - **Local:** SQLite (`file:./dev.db`)
-  - **Cloud Production:** PostgreSQL (Neon, Supabase, Vercel Postgres, or Render Postgres)
-- **Authentication:** Custom JWT-based cookie sessions with bcrypt password hashing
-- **Payments:** Stripe Checkout & Webhooks
-- **AI Engine:** Google Gemini RAG with deterministic botanical archive fallback
+ÉLORA includes a complete pre-seeded local database (`prisma/dev.db`) bundled right into the project. When you deploy, both **Vercel** and **Render** will run out of the box with zero external database configuration.
 
 ---
 
-## Part 1: Deploying to Vercel (Recommended for Next.js)
+## ⚡ 1. Deploying to Vercel (Zero Database Required)
 
-Vercel provides native edge hosting, automatic SSL, global CDN asset delivery, and instant CI/CD for Next.js.
+Deploy to Vercel in under 60 seconds:
 
-### Step 1: Import Your Repository
-1. Log in to [Vercel](https://vercel.com).
+### Step 1: Import Project in Vercel
+1. Go to [vercel.com](https://vercel.com) and log in.
 2. Click **"Add New..."** → **"Project"**.
-3. Select your GitHub repository: `https://github.com/Dhivithkumar/E-Commerce.git`.
-4. Ensure **Framework Preset** is set to `Next.js`.
-5. Root directory: `./` (leave default).
+3. Select your GitHub repository: **`https://github.com/Dhivithkumar/E-Commerce.git`** (or import `Dhivithkumar/E-Commerce`).
+4. Framework Preset will automatically detect **Next.js**.
 
-### Step 2: Configure Production Database (Vercel Postgres / Neon / Supabase)
-Because Vercel functions run in serverless, read-only containers, a persistent PostgreSQL database is required for production order processing, accounts, and reviews:
+### Step 2: Add Only 1 Environment Variable
+Under **Environment Variables**, you only need to add:
+- **`AUTH_SECRET`**: Any random text string (e.g. `elora_luxury_secret_session_key_2026`)
 
-- **Option A (Vercel Postgres - 1 Click):**
-  1. In your Vercel Project view, go to the **Storage** tab.
-  2. Click **Create Database** → select **Postgres (powered by Neon)**.
-  3. Click **Connect to Project**. Vercel will automatically inject `DATABASE_URL` and `POSTGRES_URL` into your environment variables!
+*(Leave all other fields default — do NOT connect any database).*
 
-- **Option B (External Postgres - Supabase, Neon, or Render Postgres):**
-  1. Create a free PostgreSQL instance on [Neon](https://neon.tech), [Supabase](https://supabase.com), or [Render](https://render.com).
-  2. Copy your connection URI (e.g. `postgresql://user:password@host/database?sslmode=require`).
-  3. In Vercel Project Settings → **Environment Variables**, add:
-     - `DATABASE_URL`: your PostgreSQL connection string.
-
-### Step 3: Add Essential Environment Variables
-In Vercel's **Environment Variables** section, add the following:
-
-| Variable | Value / Description | Required? |
-|---|---|---|
-| `DATABASE_URL` | Your PostgreSQL connection URI | **Yes** |
-| `AUTH_SECRET` | A secure random 32+ character string (e.g., `elora_prod_secret_auth_token_982347219`) | **Yes** |
-| `NEXT_PUBLIC_STORE_NAME` | `ÉLORA` | No (default set) |
-| `NEXT_PUBLIC_STORE_TAGLINE` | `The Science of Beautiful Skin` | No (default set) |
-| `NEXT_PUBLIC_DEFAULT_CURRENCY` | `USD` | No (default set) |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Your Stripe publishable key (`pk_test_...`) | Optional (mock fallback active) |
-| `STRIPE_SECRET_KEY` | Your Stripe secret key (`sk_test_...`) | Optional (mock fallback active) |
-| `GEMINI_API_KEY` | Your Google Gemini API key | Optional (RAG literature fallback active) |
-
-### Step 4: Deploy
+### Step 3: Click "Deploy"
 1. Click **"Deploy"**.
-2. The automated build pipeline runs `node scripts/db-prep.mjs && next build`:
-   - Prisma automatically converts to PostgreSQL provider.
-   - Pushes schema and establishes indexes via `prisma db push`.
-   - Automatically seeds all 6 luxury products, 4 categories, verified reviews, and customer accounts.
-   - Pre-renders all 34 routes statically.
-3. Your live production URL (e.g. `https://e-commerce-elora.vercel.app`) is now online!
+2. Vercel will install dependencies, build the 34 static and dynamic routes with the pre-seeded catalog, and deploy!
+3. Your storefront is live at your `.vercel.app` URL.
+
+> **How Vercel Works with Zero External DB:**  
+> Our serverless bridge in `src/lib/prisma.ts` automatically copies the bundled SQLite database to `/tmp/dev.db` in Vercel's runtime environment, allowing both fast catalog browsing and write operations (such as placing orders and client logins) without throwing read-only filesystem errors.
 
 ---
 
-## Part 2: Deploying to Render (render.com)
+## ⚡ 2. Deploying to Render (Zero Database Required)
 
-Render allows long-running Node.js server instances and managed PostgreSQL databases.
+Deploy to Render on their **Free Tier** without provisioning any database:
 
-### Method A: 1-Click Blueprint Deployment (Automated with `render.yaml`)
-
-This repository includes a pre-configured `render.yaml` file that automatically provisions both the PostgreSQL database and the Web Service together.
-
-1. Log in to [Render](https://dashboard.render.com).
+### Option A: Using Render Blueprint (1-Click)
+1. Go to [dashboard.render.com](https://dashboard.render.com).
 2. Click **"New +"** in the top navigation → Select **"Blueprint"**.
-3. Connect your GitHub repository: `https://github.com/Dhivithkumar/E-Commerce.git`.
-4. Render will read `render.yaml` and display:
-   - **Service:** `elora-luxury-skincare` (Node Web Service)
-   - **Database:** `elora-postgres` (Managed PostgreSQL Instance)
-5. Click **"Apply"**.
-6. Render will:
-   - Provision the managed PostgreSQL database.
-   - Automatically bind `DATABASE_URL` between the database and web service.
-   - Run `pnpm install && pnpm run build`.
-   - Seed the catalog and launch `pnpm start`.
-7. Once the build completes, click the generated `.onrender.com` link to visit your store!
+3. Connect your repository: **`https://github.com/Dhivithkumar/E-Commerce.git`**.
+4. Render will read `render.yaml` and create a single Web Service (`elora-luxury-skincare`) on the **Free** plan.
+5. Click **"Apply"**. Render will build and launch your application!
 
----
-
-### Method B: Manual Service Deployment on Render
-
-If you prefer to configure the services manually:
-
-#### Step 1: Create PostgreSQL Database on Render
-1. In Render Dashboard, click **"New +"** → **"PostgreSQL"**.
-2. Name: `elora-postgres`
-3. Database Name: `elora`
-4. User: `elora_user`
-5. Plan: **Free** (or Starter)
-6. Click **"Create Database"**.
-7. Once created, copy the **Internal Database URL** (if deploying the web service on Render) or **External Database URL**.
-
-#### Step 2: Create Web Service
-1. Click **"New +"** → **"Web Service"**.
+### Option B: Manual Web Service on Render
+1. In Render Dashboard, click **"New +"** → **"Web Service"**.
 2. Connect `https://github.com/Dhivithkumar/E-Commerce.git`.
-3. Configuration:
+3. Set the following settings:
    - **Name:** `elora-luxury-skincare`
    - **Runtime:** `Node`
    - **Build Command:** `pnpm install && pnpm run build`
    - **Start Command:** `pnpm start`
-   - **Plan:** Free / Starter
+   - **Instance Type:** `Free`
 4. In **Environment Variables**, add:
-   - `DATABASE_URL`: Paste the PostgreSQL URL from Step 1.
-   - `AUTH_SECRET`: Generate a random 32+ character string.
-   - `NODE_ENV`: `production`
+   - `AUTH_SECRET`: Any random string (e.g. `elora_secret_key_123456`)
 5. Click **"Create Web Service"**.
 
 ---
 
-## 🔑 Default Seed Accounts & Credentials
+## 🔑 Pre-Seeded Demonstration Logins
 
-Once deployed, the database is pre-seeded with verified test accounts:
+Once deployed, the store is already fully populated with 6 luxury formulations, reviews, and test accounts:
 
-### Executive Administrator (Full Atelier Control)
+### Executive Administrator (Director)
 - **URL:** `/admin` or `/account/login`
 - **Email:** `admin@elora.luxury`
 - **Password:** `Password123!`
-- **Capabilities:** Live inventory restocking, AI business intelligence, order fulfillment dispatch, discount coupon generator, and customer review moderation.
+- *Capabilities: Live inventory restocking, order fulfillment dispatch, discount coupon generator, and customer review moderation.*
 
-### Verified Client Profile (Sample Customer)
+### Customer Profile
 - **URL:** `/account/login`
 - **Email:** `sophia.vane@example.com`
 - **Password:** `Password123!`
-- **Capabilities:** Past order history, saved addresses, saved skin discovery diagnostics.
+- *Capabilities: Order history archives, saved addresses, and skin discovery results.*
 
 ---
 
-## 🧪 Post-Deployment Verification Checklist
-
-1. [ ] **Storefront:** Visit homepage and verify high-resolution imagery, hero banners, and Section 4.12 Instagram/Atelier Visual Grid.
-2. [ ] **Catalog & Filter:** Navigate to `/shop` and filter by category (Serums, Crèmes, Cleansers, Sun Care).
-3. [ ] **Product Detail:** Open `/shop/cellular-renewal-concentrate` and verify variant selector, ingredient list, and 30-Day Ritual Guarantee.
-4. [ ] **Cart & Currency:** Switch currency (USD, GBP, EUR, CAD, AUD, AED) in the navbar and add an item to the cart drawer.
-5. [ ] **Skin Discovery:** Complete the 4-step diagnostic at `/skin-discovery` and add recommended routine with code `WELCOME15`.
-6. [ ] **Checkout:** Complete a test checkout protocol at `/checkout` and view the generated `/checkout/confirmation/[orderNumber]`.
-7. [ ] **Admin Portal:** Sign in as `admin@elora.luxury` at `/admin` and confirm live analytics, orders, and inventory tables.
-
+## 🌐 Optional: Connecting an External Database Later
+If in the future you wish to scale to a managed cloud database (e.g., Supabase, Neon, or Render PostgreSQL), simply add the standard `DATABASE_URL="postgresql://..."` variable in Vercel or Render settings. The platform's automated engine will detect it and switch over with zero code changes!

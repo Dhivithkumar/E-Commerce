@@ -14,23 +14,32 @@ async function prepareDatabase() {
   const dbUrl = process.env.DATABASE_URL || "file:./dev.db";
   process.env.DATABASE_URL = dbUrl;
 
+  // Ensure a fallback .env exists if not provided by the host
+  const envPath = path.join(rootDir, ".env");
+  if (!fs.existsSync(envPath)) {
+    console.log("📝 Generating deployment fallback .env file...");
+    const defaultEnv = `DATABASE_URL="${dbUrl}"\nAUTH_SECRET="${process.env.AUTH_SECRET || "elora_luxury_secret_session_key_2026"}"\n`;
+    fs.writeFileSync(envPath, defaultEnv, "utf-8");
+  }
+
   const isPostgres = dbUrl.startsWith("postgres://") || dbUrl.startsWith("postgresql://");
   const targetProvider = isPostgres ? "postgresql" : "sqlite";
 
-  // Check and update provider in prisma/schema.prisma if necessary
+  // Check and update datasource in prisma/schema.prisma
   if (fs.existsSync(schemaPath)) {
     let schemaContent = fs.readFileSync(schemaPath, "utf-8");
-    const providerRegex = /provider\s*=\s*"(sqlite|postgresql)"/;
+    const datasourceRegex = /datasource\s+db\s*\{[\s\S]*?\}/;
 
-    if (providerRegex.test(schemaContent)) {
-      const match = schemaContent.match(providerRegex);
-      const currentProvider = match ? match[1] : null;
+    let targetDatasource = "";
+    if (isPostgres) {
+      targetDatasource = `datasource db {\n  provider = "postgresql"\n  url      = env("DATABASE_URL")\n}`;
+    } else {
+      targetDatasource = `datasource db {\n  provider = "sqlite"\n  url      = "file:./dev.db"\n}`;
+    }
 
-      if (currentProvider && currentProvider !== targetProvider) {
-        console.log(`🔄 Updating Prisma datasource provider from "${currentProvider}" to "${targetProvider}"...`);
-        schemaContent = schemaContent.replace(providerRegex, `provider = "${targetProvider}"`);
-        fs.writeFileSync(schemaPath, schemaContent, "utf-8");
-      }
+    if (datasourceRegex.test(schemaContent)) {
+      schemaContent = schemaContent.replace(datasourceRegex, targetDatasource);
+      fs.writeFileSync(schemaPath, schemaContent, "utf-8");
     }
   }
 
@@ -74,4 +83,3 @@ prepareDatabase().catch((err) => {
   console.error("❌ Database preparation failed:", err);
   process.exit(1);
 });
-

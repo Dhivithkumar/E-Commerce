@@ -9,6 +9,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: DATABASE_URL
+        value: "file:./prisma/dev.db"
       - key: AUTH_SECRET
         generateValue: true
       - key: NEXT_PUBLIC_STORE_NAME

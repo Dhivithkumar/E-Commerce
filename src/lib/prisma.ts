@@ -52,7 +52,16 @@ function getPrismaClient(): PrismaClient {
   }
 
   // 3. Standard Node.js environment (Local machine or Render Web Service)
+  const defaultSqlitePath = path.join(process.cwd(), "prisma", "dev.db");
+  const sqliteUrl =
+    customUrl || (fs.existsSync(defaultSqlitePath) ? `file:${defaultSqlitePath}` : "file:./dev.db");
+
   return new PrismaClient({
+    datasources: {
+      db: {
+        url: sqliteUrl,
+      },
+    },
     log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
   });
 }
